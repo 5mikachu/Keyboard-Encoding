@@ -61,16 +61,6 @@ def decode_text(encoded_text):
 def start():
     global layout_lowercase, layout_uppercase
 
-    layouts = {
-        'ay': (azerty_lowercase, azerty_uppercase),
-        'ck': (colemak_lowercase, colemak_uppercase),
-        'dk': (dvorak_lowercase, dvorak_uppercase),
-        'hr': (hcesar_lowercase, hcesar_uppercase),
-        'qy': (qwerty_lowercase, qwerty_uppercase),
-        'qz': (qwertz_lowercase, qwertz_uppercase),
-        'wm': (workman_lowercase, workman_uppercase)
-    }
-
     layout = input("Insert Layout: \n").strip().lower()
 
     if layout in layouts:

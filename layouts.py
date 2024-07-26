@@ -116,3 +116,13 @@ workman_uppercase = [
     ['A', 'S', 'H', 'T', 'G', 'Y', 'N', 'E', 'O', 'I', '"', ' '],
     ['Z', 'X', 'M', 'C', 'V', 'K', 'L', '<', '>', '?', ' ', ' ']
 ]
+
+layouts = {
+    'ay': (azerty_lowercase, azerty_uppercase),
+    'ck': (colemak_lowercase, colemak_uppercase),
+    'dk': (dvorak_lowercase, dvorak_uppercase),
+    'hr': (hcesar_lowercase, hcesar_uppercase),
+    'qy': (qwerty_lowercase, qwerty_uppercase),
+    'qz': (qwertz_lowercase, qwertz_uppercase),
+    'wm': (workman_lowercase, workman_uppercase)
+}

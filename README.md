@@ -17,18 +17,18 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 
 _Unless stated otherwise, I probably used QWERTY. I might not have though._
 
-**in**: The quick brown fox jumpes over the lazy dog.!?  
-**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 02x03 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
+**in**: The quick brown fox jumps over the lazy dog.!?  
+**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
 
 ## To: The Devil
 
-If one layer of conusion is not enough for you, consider switching keyboard layouts and then decoding it with that.
+If one layer of confusion is not enough for you, consider switching keyboard layouts and then decoding it with that.
 
-The quick brown fox jumpes over the lazy dog.!?  
---qy--> 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 02x03 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10  
---dk-> Yd. 'gcjt xpr,b urq hgml.o rk.p yd. na;f eriv!Z  
---qz-> 14x01 03x03 04x09 00x00 13x12 03x05 04x03 03x07 02x05 00x00 04x02 02x10 02x04 04x08 04x05 00x00 02x07 02x04 02x01 00x00 03x06 03x05 04x07 03x09 04x09 02x09 00x00 02x04 03x08 04x09 02x10 00x00 04x01 03x03 04x09 00x00 04x06 03x01 14x08 03x04 00x00 02x03 02x04 02x08 04x04 11x02 12x06  
---qy-> Zd. �gcjt xpr,b urq hgml.o rk.p zd. na<f eriv!Y
+The quick brown fox jumps over the lazy dog.!?  
+--qy--> 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10  
+--dk-> Yd. 'gcjt xpr,b urq hgmlo rk.p yd. na;f eriv!Z  
+--qz-> 14x01 03x03 04x09 00x00 13x12 03x05 04x03 03x07 02x05 00x00 04x02 02x10 02x04 04x08 04x05 00x00 02x07 02x04 02x01 00x00 03x06 03x05 04x07 03x09 02x09 00x00 02x04 03x08 04x09 02x10 00x00 04x01 03x03 04x09 00x00 04x06 03x01 14x08 03x04 00x00 02x03 02x04 02x08 04x04 11x02 12x06  
+--qy-> Zd. �gcjt xpr,b urq hgmlo rk.p zd. na<f eriv!Y
 
 # Requirements
 
@@ -42,7 +42,7 @@ The quick brown fox jumpes over the lazy dog.!?
 To start the program, run the following command:
 
 ```
-python code.py
+python keyboard_encoding.py
 ```
 
 ## Main Menu
@@ -106,7 +106,7 @@ layouts = {
 
 ## UPPERCASE vs lowercase
 
-Characters are stored as 'text-nibbles' formatted as 00x00.
+Characters are stored as 'text-nibbles' formatted as 00x00:
 
 |0  |0  |x  |0  |  0|
 |---|---|---|---|---|
