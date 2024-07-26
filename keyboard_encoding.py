@@ -35,7 +35,9 @@ def encode_text(text):
     for char in normalized_text:
         if char in encode_dict:
             encoded_text.append(encode_dict[char])
+
         elif char in encode_special_mappings:
+
             encoded_text.append(encode_special_mappings[char])
         else:
             encoded_text.append('�')  # Unknown character
@@ -50,8 +52,10 @@ def decode_text(encoded_text):
     for code in codes:
         if code in decode_dict:
             decoded_text.append(decode_dict[code])
+
         elif code in decode_special_mappings:
             decoded_text.append(decode_special_mappings[code])
+            
         else:
             decoded_text.append('�')  # Unknown code
 
@@ -59,52 +63,61 @@ def decode_text(encoded_text):
 
 # prompt user for keyboard layout to use
 def start():
-    global layout_lowercase, layout_uppercase
 
-    layout = input("Insert Layout: \n").strip().lower()
-
-    if layout in layouts:
-        layout_lowercase, layout_uppercase = layouts[layout]
-    else:
-        print("\nInvalid input.")
-        start()
-
-    make_dicts()
     main()
 
 
 # Main function to prompt user for input
 def main():
+    global layout_lowercase, layout_uppercase
+
+    layout = input("\nInsert Layout: \n").strip().lower()
+    if layout in layouts:
+        layout_lowercase, layout_uppercase = layouts[layout]
+        make_dicts()
+        
+    else:
+        print("\nInvalid input.")
+        main()
+
     while True:
         choice = input("\nWhat would you like to do? \n 1 - encode \n 2 - decode \n 3 - switch layout \n 4 - exit \n").strip().lower()
         if (choice == '1' or choice == 'encode'):
             choice_type = input("\nWhat would you like to encode? \n 1 - text \n 2 - file \n")
             if choice_type == '1' or choice_type == 'text':
                 text_to_encode = input("\nEnter the text to encode: \n")
+            
             elif choice_type == '2' or choice_type == 'file':
                 file = open(input("\nEnter the file name: \n"), 'r')
                 text_to_encode = file.read()
                 file.close()
+            
             encoded = encode_text(text_to_encode)
             print("\nEncoded Text: \n",encoded)
+
         elif choice == '2' or choice == 'decode':
             choice_type = input("\nWhat would you like to decode? \n 1 - text \n 2 - file \n")
             if choice_type == '1' or choice_type == 'text':
                 text_to_decode = input("\nEnter the encoded text to decode: \n")
+            
             elif choice_type == '2' or choice_type == 'file':
                 file = open(input("\nEnter the file name: \n"), 'r')
                 text_to_encode = file.read()
                 file.close()
+            
             decoded = decode_text(text_to_decode)
             print("\nDecoded Text: \n",decoded)
+
         elif choice == '3' or choice == 'switch':
-            start()
+            main()
+
         elif choice == '4' or choice == 'exit':
             print("Exiting the program.")
             break
+
         else:
             print("\nInvalid input.")
 
 # Run the start function at start
 if __name__ == "__main__":
-    start()
+    main()

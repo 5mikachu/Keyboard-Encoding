@@ -57,7 +57,7 @@ When running the program, you will be prompted to select a keyboard layout. Curr
 * hr: HCESAR
 * qy: QWERTY
 * qz: QWERTZ
-* wm: Workman
+* wn: Workman
 
 After selecting a layout, the main menu will provide the following options:
 
@@ -90,7 +90,7 @@ qwerty_uppercase = [
 ]
 ```
 
-Layouts are then defined in _layouts_, which should probably be moved to the layouts.py file. Which I will totally do in the near future.
+Layouts are then defined in _layouts_, which you can find at the bottom of the layouts.py file.
 
 ``` py
 layouts = {

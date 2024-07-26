@@ -102,7 +102,7 @@ qwertz_uppercase = [
     ['Y', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', ' ', ' ']
 ]
 
-#WORKMAN wm
+#WORKMAN wn
 workman_lowercase = [
     ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
     ['q', 'd', 'r', 'w', 'b', 'j', 'f', 'u', 'p', ';', '[', ']', '\\'],
@@ -117,6 +117,7 @@ workman_uppercase = [
     ['Z', 'X', 'M', 'C', 'V', 'K', 'L', '<', '>', '?', ' ', ' ']
 ]
 
+#Layouts dict 
 layouts = {
     'ay': (azerty_lowercase, azerty_uppercase),
     'ck': (colemak_lowercase, colemak_uppercase),
@@ -124,5 +125,5 @@ layouts = {
     'hr': (hcesar_lowercase, hcesar_uppercase),
     'qy': (qwerty_lowercase, qwerty_uppercase),
     'qz': (qwertz_lowercase, qwertz_uppercase),
-    'wm': (workman_lowercase, workman_uppercase)
+    'wn': (workman_lowercase, workman_uppercase)
 }
