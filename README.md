@@ -11,7 +11,7 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 * **Multiple Keyboard Layouts**: Supports AZERTY, Colemak, Dvorak, HCESAR, QWERTY, QWERTZ, and Workman.
 * **Encoding and Decoding**: Converts text to encoded format and vice versa.
 * **File Handling**: Can 'encode' and 'decode' text from files.
-* **Interactive Menu**: (Kind of) User-friendly interface to select actions and keyboard layouts.
+* **Interactive Menu**: Both a GUI and console based interface.
 
 # Examples
 
@@ -39,10 +39,16 @@ The quick brown fox jumps over the lazy dog.!?
 
 ## Starting the Program
 
-To start the program, run the following command:
+To start the program, run one of the following commands:
 
+To start the program in GUI mode:
+``` BASH
+python keyboard_encoding.py -g
 ```
-python keyboard_encoding.py
+
+To start the program in console mode:
+``` BASH
+python keyboard_encoding.py -t
 ```
 
 ## Main Menu
