@@ -37,10 +37,8 @@ def encode_text(text):
     for char in normalized_text:
         if char in encode_dict:
             encoded_text.append(encode_dict[char])
-
         elif char in encode_special_mappings:
             encoded_text.append(encode_special_mappings[char])
-            
         else:
             encoded_text.append('�') # Unknown character
 
@@ -54,10 +52,8 @@ def decode_text(encoded_text):
     for code in codes:
         if code in decode_dict:
             decoded_text.append(decode_dict[code])
-
         elif code in decode_special_mappings:
             decoded_text.append(decode_special_mappings[code])
-            
         else:
             decoded_text.append('�') # Unknown code
 
@@ -72,7 +68,6 @@ def console():
     if layout in layouts:
         layout_lowercase, layout_uppercase = layouts[layout]
         make_dicts()
-
     else:
         print("\nInvalid input.")
         console()
@@ -83,7 +78,6 @@ def console():
             choice_type = input("\nWhat would you like to encode? \n 1 - text \n 2 - file \n")
             if choice_type == '1' or choice_type == 'text':
                 text_to_encode = input("\nEnter the text to encode: \n")
-
             elif choice_type == '2' or choice_type == 'file':
                 file = open(input("\nEnter the file name: \n"), 'r')
                 text_to_encode = file.read()
@@ -96,7 +90,6 @@ def console():
             choice_type = input("\nWhat would you like to decode? \n 1 - text \n 2 - file \n")
             if choice_type == '1' or choice_type == 'text':
                 text_to_decode = input("\nEnter the encoded text to decode: \n")
-
             elif choice_type == '2' or choice_type == 'file':
                 file = open(input("\nEnter the file name: \n"), 'r')
                 text_to_decode = file.read()
@@ -107,11 +100,9 @@ def console():
 
         elif choice == '3' or choice == 'switch':
             console()
-
         elif choice == '4' or choice == 'exit':
             print("Exiting the program.")
             break
-
         else:
             print("\nInvalid input.")
 
@@ -196,7 +187,6 @@ class MainWindow(QWidget):
             encoded = encode_text(text)
             print(encoded)
             self.textbox.setText(encoded)
-
         elif self.decode_radio.isChecked():
             decoded = decode_text(text)
             print(decoded)
@@ -208,22 +198,23 @@ class MainWindow(QWidget):
         self.textbox.clear()
 
 # Main function to determine which interface to run
-if __name__ == "__main__":    
+def main():
     if len(sys.argv) <= 1:
-        print(" No argument, use '-h' or '--help' for help \n")
+        print("No argument provided. Use '-h' or '--help' for usage information.\n")
 
     else:
-        if sys.argv[1] == "-g" or sys.argv[1] == "--graphical":
+        argument = sys.argv[1].lower()  # Ensure case-insensitive handling
+        if argument in ("-g", "--graphical"):
             app = QApplication(sys.argv)
             window = MainWindow()
             window.show()
             sys.exit(app.exec_())
-            
-        elif sys.argv[1] == "-t" or sys.argv[1] == "--terminal":
-            console()
-        
-        elif sys.argv[1] == "-h" or sys.argv[1] == "--help":
-            print(" -c, --console:   Open in console mode \n -t, --terminal:  Open in terminal mode \n -h, --help:      Get information about how to use this program \n")
-            
+        elif argument in ("-c", "--console"):
+            console()  # Assuming you have a defined function for console mode
+        elif argument in ("-h", "--help"):
+            print('Usage:\n -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n -c, --console:   Run the application in console mode.\n -h, --help:      Display this help message.')
         else:
-            print(" Unknown argument, use '-h' or '--help' for help \n")
+            print(f"Unknown argument: '{argument}'. Use '-h' or '--help' for valid options.\n")
+
+if __name__ == "__main__":
+    main()
