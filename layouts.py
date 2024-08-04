@@ -1,16 +1,53 @@
 # Define encode and decode dictionaries
 encode_special_mappings = {
-    ' ': '00x00',
-    '\n': '10x00',
-    '̀': '00x01',
-    '́': '00x02',
-    '̂': '00x03',
-    '̃': '00x04',
-    '̄': '00x05',
-    '̎': '00x06'
+    ' ': '00x00', # SPACE
+    '\n': '10x00',# New line
+    '̀': '00x01',  # Grave accent
+    '́': '00x02',  # Acute accent
+    '̂': '00x03',  # Circumflex
+    '̃': '00x04',  # Tilde
+    '̄': '00x05',  # Macron
+    '̅': '00x06',  # Overline
+    '̆': '00x07',  # Breve
+    '̇': '00x08',  # Dot above
+    '̈': '00x09',  # Diaeresis (Umlaut)
+    '̉': '00x0A',  # Hook above
+    '̊': '00x0B',  # Ring above
+    '̋': '00x0C',  # Double acute accent
+    '̌': '00x0D',  # Caron (Hacek)
+    '̍': '00x0E',  # Vertical line above
+    '̎': '00x0F',  # Double vertical line above
+    '̐': '00x10',  # Candrabindu
+    '̑': '00x11',  # Inverted breve
+    '̒': '00x12',  # Turned comma above
+    '̧': '00x13',  # Cedilla
+    '̨': '00x14',  # Ogonek
+    '̱': '00x15',  # Macron below
+    '̲': '00x16',  # Low line (underscore)
+    '̳': '00x17',  # Double low line
+    '̹': '00x18',  # Left half ring below
+    '̺': '00x19',  # Right half ring below
+    '̻': '00x1A',  # Inverted bridge below
+    '̼': '00x1B',  # Seagull below
+    'ͅ': '00x1C',  # Greek iota subscript
 }
 
 decode_special_mappings = {v: k for k, v in encode_special_mappings.items()}
+
+# Arabic (ar)
+arabic_lowercase = [
+    ['\u0630', '\u0661', '\u0662', '\u0663', '\u0664', '\u0665', '\u0666', '\u0667', '\u0668', '\u0669', '\u0660', '-', '='],
+    ['\u0636', '\u0635', '\u062B', '\u0642', '\u0641', '\u063A', '\u0639', '\u0647', '\u062E', '\u062D', '\u062C', '\u062F', '\\'],
+    ['\u0634', '\u0633', '\u064A', '\u0628', '\u0644', '\u0627', '\u062A', '\u0646', '\u0645', '\u0643', '\u0637', ' '],
+    ['\u0626', '\u0621', '\u0624', '\u0631', '\u0644\u0627', '\u0649', '\u0629', '\u0648', '\u0632', '\u0638', ' ', ' ']
+]
+
+arabic_uppercase = [
+    ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
+    ['\u0651', '\u0640', '\u0652', '\u064E', '\u064B', '\u064F', '\u064C', '\u0643\u0650', '\u0655', '\u0653', '\u0654', '\u0656', '|'],
+    ['\u064D', '\u0657', '\u0658', '\u0659', '\u065A', '\u065B', '\u065C', '\u065D', '\u065E', '\u065F', '\u066A', ' '],
+    ['\u066B', '\u066C', '\u066D', '\u066E', '\u066F', '\u0670', '\u0671', '\u0672', '\u0673', '\u0674', ' ', ' ']
+]
 
 #AZERTY ay
 azerty_lowercase = [
@@ -25,6 +62,21 @@ azerty_uppercase = [
     ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '¨', '£', 'µ'],
     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', '¤'],
     ['W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', '§', ' ', ' ']
+]
+
+# Cyrillic (ru)
+cyrillic_lowercase = [
+    ['ё', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ', '\\'],
+    ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э', ' '],
+    ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю', '.', ' ', ' ']
+]
+
+cyrillic_uppercase = [
+    ['Ё', '!', '"', '№', ';', '%', ':', '?', '*', '(', ')', '_', '+'],
+    ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'З', 'Х', 'Ъ', '/'],
+    ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э', ' '],
+    ['Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', ',', ' ', ' ']
 ]
 
 #COLEMAK ck
@@ -55,6 +107,36 @@ dvorak_uppercase = [
     ['"', '<', '>', 'P', 'Y', 'F', 'G', 'C', 'R', 'L', '?', '+', '|'],
     ['A', 'O', 'E', 'U', 'I', 'D', 'H', 'T', 'N', 'S', '_', ' '],
     [':', 'Q', 'J', 'K', 'X', 'B', 'M', 'W', 'V', 'Z', ' ', ' ']
+]
+
+# Greek (gr)
+greek_lowercase = [
+    [';', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['΄', 'ε', 'ρ', 'τ', 'υ', 'θ', 'ι', 'ο', 'π', '[', ']', '\\'],
+    ['α', 'σ', 'δ', 'φ', 'γ', 'η', 'ξ', 'κ', 'λ', ';', '\'', ' '],
+    ['ζ', 'χ', 'ψ', 'ω', 'β', 'ν', 'μ', ',', '.', '/', ' ', ' ']
+]
+
+greek_uppercase = [
+    [':', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
+    ['Ά', 'Ε', 'Ρ', 'Τ', 'Υ', 'Θ', 'Ι', 'Ο', 'Π', '{', '}', '|'],
+    ['Α', 'Σ', 'Δ', 'Φ', 'Γ', 'Η', 'Ξ', 'Κ', 'Λ', ':', '"', ' '],
+    ['Ζ', 'Χ', 'Ψ', 'Ω', 'Β', 'Ν', 'Μ', '<', '>', '?', ' ', ' ']
+]
+
+# Hebrew (he)
+hebrew_lowercase = [
+    [';', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['/', 'ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', '[', ']', '\\'],
+    ['ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ף', ',', ' '],
+    ['ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ', 'ת', 'ץ', '.', ' ', ' ']
+]
+
+hebrew_uppercase = [
+    [';', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
+    ['/', 'ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', '{', '}', '|'],
+    ['ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ף', '<', ' '],
+    ['ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ', 'ת', 'ץ', '>', ' ', ' ']
 ]
 
 #HCESAR hr
@@ -119,11 +201,15 @@ workman_uppercase = [
 
 #Layouts dict 
 layouts = {
+    'ar': (arabic_lowercase, arabic_uppercase),
     'ay': (azerty_lowercase, azerty_uppercase),
     'ck': (colemak_lowercase, colemak_uppercase),
     'dk': (dvorak_lowercase, dvorak_uppercase),
+    'gr': (greek_lowercase, greek_uppercase),
+    'he': (hebrew_lowercase, hebrew_uppercase),
     'hr': (hcesar_lowercase, hcesar_uppercase),
     'qy': (qwerty_lowercase, qwerty_uppercase),
     'qz': (qwertz_lowercase, qwertz_uppercase),
+    'ru': (cyrillic_lowercase, cyrillic_uppercase),
     'wn': (workman_lowercase, workman_uppercase)
 }

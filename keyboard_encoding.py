@@ -132,13 +132,18 @@ class MainWindow(QWidget):
 
         # Layout dropdown
         self.dropdown = QComboBox()
+        self.dropdown.addItem('Arabic', 'ar')
         self.dropdown.addItem('AZERTY', 'ay')
         self.dropdown.addItem('Colemak', 'ck')
+        self.dropdown.addItem('Cyrillic', 'ru')
         self.dropdown.addItem('Dvorak', 'dk')
+        self.dropdown.addItem('Greek', 'gr')
+        self.dropdown.addItem('Hebrew', 'he')
         self.dropdown.addItem('HCESAR', 'hr')
         self.dropdown.addItem('QWERTY', 'qy')
         self.dropdown.addItem('QWERTZ', 'qz')
         self.dropdown.addItem('Workman', 'wn')
+
 
         dropdown_label = QLabel('Keyboard Layout:')
         dropdown_layout.addWidget(dropdown_label)

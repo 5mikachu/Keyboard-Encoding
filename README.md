@@ -15,20 +15,13 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 
 # Examples
 
-_Unless stated otherwise, I probably used QWERTY. I might not have though._
+_Unless stated otherwise, QWERTY was used._
 
 **in**: The quick brown fox jumps over the lazy dog.!?  
 **out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
 
-## To: The Devil
-
-If one layer of confusion is not enough for you, consider switching keyboard layouts and then decoding it with that.
-
-The quick brown fox jumps over the lazy dog.!?  
---qy--> 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10  
---dk-> Yd. 'gcjt xpr,b urq hgmlo rk.p yd. na;f eriv!Z  
---qz-> 14x01 03x03 04x09 00x00 13x12 03x05 04x03 03x07 02x05 00x00 04x02 02x10 02x04 04x08 04x05 00x00 02x07 02x04 02x01 00x00 03x06 03x05 04x07 03x09 02x09 00x00 02x04 03x08 04x09 02x10 00x00 04x01 03x03 04x09 00x00 04x06 03x01 14x08 03x04 00x00 02x03 02x04 02x08 04x04 11x02 12x06  
---qy-> Zd. �gcjt xpr,b urq hgmlo rk.p zd. na<f eriv!Y
+**in**: 04x06 02x03 00x02 02x03 04x08 00x00 02x03 04x06 02x05 02x04 02x03 02x10 02x09 00x03 02x05 04x08 00x00 14x01 02x09 02x03 00x09 04x08 00x00 03x04 03x01 04x03 00x13 03x01 03x03 02x03 04x08 00x00 13x02 02x03 04x06 00x04 02x09 02x04 04x08 00x00 03x06 03x01 00x02 04x03 00x0D 02x03 03x08
+**out**: née, entrepôt, Zoë, façade, Señor, háček
 
 # Requirements
 
@@ -57,12 +50,16 @@ _At the moment this is the only menu, but Main Menu sound better._
 
 When running the program, you will be prompted to select a keyboard layout. Currently available options are:
 
+* ar: Arabic
 * ay: AZERTY
 * ck: Colemak
 * dk: Dvorak
+* gr: Greek
+* he: Hebrew
 * hr: HCESAR
 * qy: QWERTY
 * qz: QWERTZ
+* ru: Cyrillic
 * wn: Workman
 
 After selecting a layout, the main menu will provide the following options:
@@ -100,13 +97,17 @@ Layouts are then defined in _layouts_, which you can find at the bottom of the l
 
 ``` py
 layouts = {
+    'ar': (arabic_lowercase, arabic_uppercase),
     'ay': (azerty_lowercase, azerty_uppercase),
     'ck': (colemak_lowercase, colemak_uppercase),
     'dk': (dvorak_lowercase, dvorak_uppercase),
+    'gr': (greek_lowercase, greek_uppercase),
+    'he': (hebrew_lowercase, hebrew_uppercase),
     'hr': (hcesar_lowercase, hcesar_uppercase),
     'qy': (qwerty_lowercase, qwerty_uppercase),
     'qz': (qwertz_lowercase, qwertz_uppercase),
-    'wm': (workman_lowercase, workman_uppercase)
+    'ru': (cyrillic_lowercase, cyrillic_uppercase),
+    'wn': (workman_lowercase, workman_uppercase)
 }
 ```
 
@@ -122,14 +123,45 @@ Characters are stored as 'text-nibbles' formatted as 00x00:
 
 ``` py
 encode_special_mappings = {
-    ' ': '00x00',
-    '\n': '10x00',
-    '̀': '00x01',
-    '́': '00x02',
-    '̂': '00x03',
-    '̃': '00x04',
-    '̄': '00x05',
-    '̎': '00x06'
+    ' ': '00x00',  # SPACE
+    '\n': '10x00', # Newline
+    '\t': '10x01', # Tab
+    '\\': '10x02', # Backslash
+    '\'': '10x03', # Single quote
+    '\"': '10x04', # Double quote
+    '\r': '10x05', # Carriage return
+    '\b': '10x06', # Backspace
+    '\f': '10x07', # Form feed
+    '\v': '10x08', # Vertical tab
+    '\a': '10x09', # Bell/alert
+    '̀': '00x01',   # Grave accent
+    '́': '00x02',   # Acute accent
+    '̂': '00x03',   # Circumflex
+    '̃': '00x04',   # Tilde
+    '̄': '00x05',   # Macron
+    '̅': '00x06',   # Overline
+    '̆': '00x07',   # Breve
+    '̇': '00x08',   # Dot above
+    '̈': '00x09',   # Diaeresis (Umlaut)
+    '̉': '00x0A',   # Hook above
+    '̊': '00x0B',   # Ring above
+    '̋': '00x0C',   # Double acute accent
+    '̌': '00x0D',   # Caron (Hacek)
+    '̍': '00x0E',   # Vertical line above
+    '̎': '00x0F',   # Double vertical line above
+    '̐': '00x10',   # Candrabindu
+    '̑': '00x11',   # Inverted breve
+    '̒': '00x12',   # Turned comma above
+    '̧': '00x13',   # Cedilla
+    '̨': '00x14',   # Ogonek
+    '̱': '00x15',   # Macron below
+    '̲': '00x16',   # Low line (underscore)
+    '̳': '00x17',   # Double low line
+    '̹': '00x18',   # Left half ring below
+    '̺': '00x19',   # Right half ring below
+    '̻': '00x1A',   # Inverted bridge below
+    '̼': '00x1B',   # Seagull below
+    'ͅ': '00x1C',   # Greek iota subscript
 }
 ```
 
