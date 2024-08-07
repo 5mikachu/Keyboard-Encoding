@@ -35,7 +35,6 @@ class EncodeDecode:
                     decoding_dict[code] = char
 
         return encoding_dict, decoding_dict
-        pass
 
     def initialize_dictionaries(self, layout_key):
         """
@@ -62,7 +61,6 @@ class EncodeDecode:
         self.decoding_dict = {**lowercase_decoding_dict, **uppercase_decoding_dict}
 
         return(self.encoding_dict, self.decoding_dict)
-        pass
 
     def encode_text(self, text):
         """
@@ -87,7 +85,6 @@ class EncodeDecode:
                 encoded_text.append('�') # Unknown character
 
         return ' '.join(encoded_text)
-        pass
 
     def decode_text(self, encoded_text):
         """
@@ -116,7 +113,6 @@ class EncodeDecode:
                 decoded_text.append('�') # Unknown code
 
         return ''.join(decoded_text)
-        pass
 
 def console_interface():
     """
@@ -131,7 +127,7 @@ def console_interface():
             EncodeDecode.initialize_dictionaries(EncodeDecode, layout)
             break
         else:
-            print("\nInvalid layout. Please try again.")
+            handle_error('InvalidLayoutError')
 
     while True:
         choice = input("\nWhat would you like to do?\n 1 - encode\n 2 - decode\n 3 - switch layout\n 4 - exit\n").strip().lower()
@@ -144,12 +140,16 @@ def console_interface():
                 try:
                     with open(file_path, 'r') as file:
                         text_to_encode = file.read()
-                except FileNotFoundError:
-                    print("\nFile not found. Please try again.")
-                    continue
-    
-            encoded_text = EncodeDecode.encode_text(EncodeDecode, text_to_encode)
-            print("\nEncoded Text: \n", encoded_text)
+                except FileNotFoundError as error:
+                    handle_error(error)
+            else:
+                handle_error("InvalidInputError")
+                
+            try:
+                encoded_text = EncodeDecode().encode_text(text_to_encode)
+                print("\nEncoded Text: \n", encoded_text)
+            except UnboundLocalError as error:
+                handle_error(error)
         elif choice in {'2', 'decode'}:
             choice_type = input("\nWhat would you like to decode?\n 1 - text\n 2 - file\n")
             if choice_type in {'1', 'text'}:
@@ -159,19 +159,23 @@ def console_interface():
                 try:
                     with open(file_path, 'r') as file:
                         text_to_decode = file.read()
-                except FileNotFoundError:
-                    print("\nFile not found. Please try again.")
-                    continue
-
-            decoded_text = EncodeDecode.decode_text(EncodeDecode, text_to_decode)
-            print("\nDecoded Text:\n", decoded_text)
+                except FileNotFoundError as error:
+                    handle_error(error)
+            else:
+                handle_error("InvalidInputError")
+            try:
+                decoded_text = EncodeDecode().decode_text(text_to_decode)
+                print("\nDecoded Text:\n", decoded_text)
+            except UnboundLocalError as error:
+                handle_error(error)
         elif choice in {'3', 'switch'}:
             return console_interface()
         elif choice in {'4', 'exit'}:
             print("Exiting the program.")
             break
         else:
-            print("\nInvalid input. Please try again")
+            handle_error("InvalidInputError")
+
 
 class MainWindow(QWidget): # GUI interface
     def __init__(self):
@@ -248,23 +252,21 @@ class MainWindow(QWidget): # GUI interface
         EncodeDecode.initialize_dictionaries(EncodeDecode, layout_key)
         
         if self.encode_radio.isChecked():
-            encoded_text = EncodeDecode.encode_text(EncodeDecode, text)
-            print(encoded_text)
-            self.textbox.setText(encoded_text)
+            self.textbox.setText(EncodeDecode.encode_text(EncodeDecode, text))
         elif self.decode_radio.isChecked():
-            decoded_text = EncodeDecode.decode_text(EncodeDecode, text)
-            print(decoded_text)
-            self.textbox.setText(decoded_text)
+            self.textbox.setText(EncodeDecode.decode_text(EncodeDecode, text))
 
     def handle_reset(self):
         self.dropdown.setCurrentIndex(0)
         self.encode_radio.setChecked(True)
         self.textbox.clear()
 
-def main(): # Main function to determine which interface to run
-    if len(sys.argv) <= 1:
-        print("No argument provided. Use '-h' or '--help' for usage information.\n")
-    else:
+def main():
+    """
+    Determine which interface to run.
+    """
+
+    try:
         argument = sys.argv[1].lower()  # Ensure case-insensitive handling
         if argument in ("-g", "--graphical"):
             app = QApplication(sys.argv)
@@ -276,7 +278,35 @@ def main(): # Main function to determine which interface to run
         elif argument in ("-h", "--help"):
             print('Usage:\n -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n -c, --console:   Run the application in console mode.\n -h, --help:      Display this help message.')
         else:
-            print(f"Unknown argument: '{argument}'. Use '-h' or '--help' for valid options.\n")
+            handle_error('InvalidArgumentError')
+    except IndexError as error:
+        handle_error(error)
+    except Exception as error:
+        handle_error(error)
+
+def handle_error(error):
+    """
+    Handles all the errors and gives feedback to the user.
+
+    Args:
+        error (Exception): The caught exception or a string identifier.
+    """
+    
+    errors = {
+        FileNotFoundError:       "File not found. Please try again.",
+        IndexError:              "No argument provided. Use '-h' or '--help' for usage information.",
+        'InvalidArgumentError':  "Invalid argument. Use '-h' or '--help' for help.",
+        'InvalidInputError':     "Invalid input. Please try again.",
+        'InvalidLayoutError':    "Invalid layout. Please try again.",
+        UnboundLocalError:       "Cannot access local variable. This may be cause by an invalid input."
+    }
+
+    if isinstance(error, Exception):
+        print(f"{type(error).__name__}: {errors.get(type(error), str(error))}")
+    elif isinstance(error, str):
+        print(f"{error}: {errors.get(error, 'An unknown error occurred.')}")
+    else:
+        print("Error: An unknown error occurred.")
 
 if __name__ == "__main__":
     main()
