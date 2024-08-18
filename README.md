@@ -45,13 +45,18 @@ _Unless stated otherwise, QWERTY was used._
 To start the program, run one of the following commands:
 
 To start the program in GUI mode:
-``` BASH
+``` sh
 python keyboard_encoding.py -g
 ```
 
 To start the program in console mode:
-``` BASH
-python keyboard_encoding.py -t
+``` sh
+python keyboard_encoding.py -c
+```
+
+To get information on how to run the program:
+``` sh
+python keyboard_encoding.py -h
 ```
 
 ## Main Menu
@@ -74,10 +79,12 @@ When running the program, you will be prompted to select a keyboard layout. Curr
 
 After selecting a layout, the main menu will provide the following options:
 
-1. Encode
-2. Decode
-3. Switch Layout
-4. Exit (My favorite)
+1. encode
+2. decode
+3. switch layout
+4. add layout
+5. switch to GUI
+6. Exit (My favorite)
 
 When either Encode or Decode is chosen you will be prompted if you want to encode/decode text or text from a file.
 
@@ -85,40 +92,23 @@ When either Encode or Decode is chosen you will be prompted if you want to encod
 
 ## Layouts
 
-Layouts are imported from layouts.py, which must contain the table for lowercase and uppercase for each layout.
+Layouts are imported from layouts.py, which must contain the name and the data for lowercase and uppercase letters for each layout.
 
 ``` py
-qwerty_lowercase = [
-    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
-    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' '],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
-]
-
-qwerty_uppercase = [
-    ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
-    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|'],
-    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' '],
-    ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
-]
-```
-
-Layouts are then defined in _layouts_, which you can find at the bottom of the layouts.py file.
-
-``` py
-layouts = {
-    'ar': (arabic_lowercase, arabic_uppercase),
-    'ay': (azerty_lowercase, azerty_uppercase),
-    'ck': (colemak_lowercase, colemak_uppercase),
-    'dk': (dvorak_lowercase, dvorak_uppercase),
-    'gr': (greek_lowercase, greek_uppercase),
-    'he': (hebrew_lowercase, hebrew_uppercase),
-    'hr': (hcesar_lowercase, hcesar_uppercase),
-    'jn': (jcuken_lowercase, jcuken_uppercase),
-    'qy': (qwerty_lowercase, qwerty_uppercase),
-    'qz': (qwertz_lowercase, qwertz_uppercase),
-    'wn': (workman_lowercase, workman_uppercase)
-}
+'qy': {
+    'name': 'QWERTY',
+    'lowercase': [
+        ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' '],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
+    ],
+    'uppercase': [
+        ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
+        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' '],
+        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
+    ]
 ```
 
 ## UPPERCASE vs lowercase
@@ -155,21 +145,30 @@ encode_special_mappings = {
     '̋': '00x0C',   # Double acute accent
     '̌': '00x0D',   # Caron (Hacek)
     '̍': '00x0E',   # Vertical line above
-    '̎': '00x0F',   # Double vertical line above
-    '̐': '00x10',   # Candrabindu
-    '̑': '00x11',   # Inverted breve
-    '̒': '00x12',   # Turned comma above
-    '̧': '00x13',   # Cedilla
-    '̨': '00x14',   # Ogonek
-    '̱': '00x15',   # Macron below
-    '̲': '00x16',   # Low line (underscore)
-    '̳': '00x17',   # Double low line
-    '̹': '00x18',   # Left half ring below
-    '̺': '00x19',   # Right half ring below
-    '̻': '00x1A',   # Inverted bridge below
-    '̼': '00x1B',   # Seagull below
-    'ͅ': '00x1C',   # Greek iota subscript
+    
+    # And so on...
 }
 ```
 
-More can be added if needed, can be found in layouts.py
+## Adding layouts
+
+More can be added if needed, this can be done by hardcoding or by using add_layout().  
+
+As example, if the user wants to add QWERTY (they wouldn't be able to, as it already exists...), the user needs to do the following.
+
+``` sh
+layout key:  qy
+Layout name: QWERTY
+Enter row 1 for lowercase (leave blank to finish): ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=']
+Enter row 2 for lowercase (leave blank to finish): ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\']
+Enter row 3 for lowercase (leave blank to finish): ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' ']
+Enter row 4 for lowercase (leave blank to finish): ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
+Enter row 5 for lowercase (leave blank to finish): 
+Enter row 1 for uppercase (leave blank to finish): ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
+Enter row 2 for uppercase (leave blank to finish): ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|']
+Enter row 3 for uppercase (leave blank to finish): ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' ']
+Enter row 4 for uppercase (leave blank to finish): ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
+Enter row 5 for uppercase (leave blank to finish): 
+```
+
+To get to the add_layout() function, simply type 'add layout' when prompted for a layout or choose 4 in the main menu.

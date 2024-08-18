@@ -1,13 +1,21 @@
 import sys
 import unicodedata
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox
-from layouts import *  # Keyboard layouts from layouts.py
+import logging
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, 
+    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox
+)
+from layouts import KeyboardLayouts
+
+
+# Setting up logging for error tracking and debugging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class EncodeDecode:
-    def __init__(self, layouts, encode_special_mappings, decode_special_mappings):
-        self.layouts = layouts
-        self.encode_special_mappings = encode_special_mappings
-        self.decode_special_mappings = decode_special_mappings
+    def __init__(self):
+        self.layouts = KeyboardLayouts
+        self.encode_special_mappings, self.decode_special_mappings = self.layouts.get_special_mappings()
         self.encoding_dict = {}
         self.decoding_dict = {}
         self.layout_lowercase = []
@@ -49,9 +57,15 @@ class EncodeDecode:
             tuple: A tuple containing two dictionaries:
                 - encoding_dict (dict): Dictionary for encoding characters to codes.
                 - decoding_dict (dict): Dictionary for decoding codes to characters.
-
         """
-        self.layout_lowercase, self.layout_uppercase = self.layouts[layout_key]
+        if layout_key in self.encoding_dict:
+            return  # Avoid reinitializing if already done
+
+        try:
+            self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
+        except ValueError as e:
+            logging.error(str(e))
+            raise ValueError(str(e))
 
         lowercase_encoding_dict, lowercase_decoding_dict = self.generate_layout_dicts(self.layout_lowercase, '0')
         uppercase_encoding_dict, uppercase_decoding_dict = self.generate_layout_dicts(self.layout_uppercase, '1')
@@ -78,6 +92,7 @@ class EncodeDecode:
             elif char in self.encode_special_mappings:
                 encoded_text.append(self.encode_special_mappings[char])
             else:
+                logging.warning(f"Unknown character encountered: {char}")
                 encoded_text.append('�')  # Unknown character
 
         return ' '.join(encoded_text)
@@ -92,13 +107,12 @@ class EncodeDecode:
         Returns:
             str: The decoded text.
         """
-
         decoded_text = []
         codes = encoded_text.split()
 
         for code in codes:
-            if code in self.layouts:
-                self.layout_lowercase, self.layout_uppercase = self.layouts[code]
+            if code in self.layouts.list_layouts():  # Switch layout
+                self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(code)
                 decoded_text.append(f"~{code}~")
                 self.initialize_layout_dictionaries(code)
             elif code in self.decoding_dict:
@@ -106,75 +120,133 @@ class EncodeDecode:
             elif code in self.decode_special_mappings:
                 decoded_text.append(self.decode_special_mappings[code])
             else:
+                logging.warning(f"Unknown code encountered: {code}")
                 decoded_text.append('�')  # Unknown code
 
         return ''.join(decoded_text)
 
-def console_interface(layouts, encode_special_mappings, decode_special_mappings):
-    """
-    Runs the console interface for encoding and decoding text.
 
-    Args:
-        encode_special_mappings (): 
-        decode_special_mappings (): 
-    """
-    encoder_decoder = EncodeDecode(layouts, encode_special_mappings, decode_special_mappings)
+class ConsoleInterface:
+    def __init__(self):
+        self.encoder_decoder = EncodeDecode()
+        self.available_layouts = self.encoder_decoder.layouts.list_layouts()
 
-    while True:
-        layout = input("\nInsert Layout: \n").strip().lower()
+    def main(self):
+        """
+        Runs the console interface for encoding and decoding text.
+        """
+        self.choose_layout()
 
-        if layout in layouts:
-            encoder_decoder.initialize_layout_dictionaries(layout)
-            break
-        else:
-            handle_error('InvalidLayoutError')
+        actions = {
+            '1': self.encode,
+            '2': self.decode,
+            '3': self.choose_layout,
+            '4': self.handle_add_layout,
+            '5': self.switch_to_gui,
+            '6': self.exit_program,
+        }
 
-    while True:
-        choice = input("\nWhat would you like to do?\n 1 - encode\n 2 - decode\n 3 - switch layout\n 4 - exit\n").strip().lower()
-        if choice in {'1', 'encode'}:
-            text_to_encode = get_input_text("encode")
-            try:
-                encoded_text = encoder_decoder.encode_text(text_to_encode)
-                print("\nEncoded Text: \n", encoded_text)
-            except Exception as error:
-                handle_error(error)
-        elif choice in {'2', 'decode'}:
-            text_to_decode = get_input_text("decode")
-            try:
-                decoded_text = encoder_decoder.decode_text(text_to_decode)
-                print("\nDecoded Text:\n", decoded_text)
-            except Exception as error:
-                handle_error(error)
-        elif choice in {'3', 'switch'}:
-            layout = input("\nInsert Layout: \n").strip().lower()
-            if layout in layouts:
-                encoder_decoder.initialize_layout_dictionaries(layout)
+        while True:
+            choice = input("\nWhat would you like to do?\n"
+                           " 1 - encode\n"
+                           " 2 - decode\n"
+                           " 3 - switch layout\n"
+                           " 4 - add layout\n"
+                           " 5 - switch to GUI\n"
+                           " 6 - exit\n").strip().lower()
+
+            action = actions.get(choice)
+            if action:
+                action()
             else:
-                handle_error('InvalidLayoutError')
-        elif choice in {'4', 'exit'}:
-            print("Exiting the program.")
-            break
-        else:
-            handle_error("InvalidInputError")
+                logging.error("Invalid input. Please try again.")
 
-def get_input_text(operation):
-    choice_type = input(f"\nWhat would you like to {operation} \n 1 - text\n 2 - file\n").strip().lower()
-    if choice_type in {'1', 'text'}:
-        return input(f"\nEnter the text to {operation}:\n")
-    elif choice_type in {'2', 'file'}:
-        file_path = input("\nEnter the file name: \n")
+    def choose_layout(self):
+        while True:
+            layout = input("\nInsert Layout:\n").strip().lower()
+
+            if layout in [key for key, name in self.available_layouts]:
+                self.encoder_decoder.initialize_layout_dictionaries(layout)
+                break
+            elif layout == 'add layout':
+                self.handle_add_layout()
+            else:
+                logging.error("Invalid layout. Please try again.")
+
+    def handle_add_layout(self):
+        key = input("\nLayout key:  ").strip().lower()
+        name = input("Layout name: ").strip()
+
+        lowercase = self.get_layout_input("lowercase")
+        uppercase = self.get_layout_input("uppercase")
+
         try:
-            with open(file_path, 'r') as file:
-                return file.read()
-        except Exception as error:
-            handle_error(error)
-    else:
-        handle_error("InvalidInputError")
+            KeyboardLayouts.add_layout(key, name, lowercase, uppercase)
+            logging.info(f"Layout '{name}' added successfully.")
+        except ValueError as e:
+            logging.error(str(e))
 
-class MainWindow(QWidget):  # GUI interface
-    def __init__(self, layouts, encode_special_mappings, decode_special_mappings):
+    def get_layout_input(self, case_type):
+        layout = []
+        row_number = 1
+
+        while True:
+            row = input(f"Enter row {row_number} for {case_type} (leave blank to finish): ").strip()
+            row_number += 1
+            if not row:
+                row_number == 0
+                break
+            layout.append(list(row))
+        return layout
+
+    def encode(self):
+        text_to_encode = self.get_input_text("encode")
+        try:
+            encoded_text = self.encoder_decoder.encode_text(text_to_encode)
+            print("\nEncoded Text:\n", encoded_text)
+        except Exception as error:
+            logging.error("Error during encoding", exc_info=True)
+
+    def decode(self):
+        text_to_decode = self.get_input_text("decode")
+        try:
+            decoded_text = self.encoder_decoder.decode_text(text_to_decode)
+            print("\nDecoded Text:\n", decoded_text)
+        except Exception as error:
+            logging.error("Error during decoding", exc_info=True)
+
+    def switch_to_gui(self):
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        window.show()
+        sys.exit(app.exec_())
+
+    def exit_program(self):
+        print("Exiting the program.")
+        sys.exit(0)
+
+    def get_input_text(self, operation):
+        choice_type = input(f"\nWhat would you like to {operation}\n 1 - text\n 2 - file\n").strip().lower()
+        if choice_type in {'1', 'text'}:
+            return input(f"\nEnter the text to {operation}:\n")
+        elif choice_type in {'2', 'file'}:
+            file_path = input("\nEnter the file name: \n")
+            try:
+                with open(file_path, 'r') as file:
+                    return file.read()
+            except FileNotFoundError:
+                logging.error("File not found. Please try again.")
+            except Exception as error:
+                logging.error("Error reading file", exc_info=True)
+        else:
+            logging.error("Invalid input. Please try again.")
+            return self.get_input_text(operation)
+
+
+class MainWindow(QWidget):
+    def __init__(self):
         super().__init__()
-        self.encoder_decoder = EncodeDecode(layouts, encode_special_mappings, decode_special_mappings)
+        self.encoder_decoder = EncodeDecode()
         self.initUI()
 
     def initUI(self):
@@ -188,7 +260,9 @@ class MainWindow(QWidget):  # GUI interface
 
         # Layout dropdown
         self.dropdown = QComboBox()
-        self.populate_dropdown()
+        for key, name in self.encoder_decoder.layouts.list_layouts():
+            self.dropdown.addItem(name, key)
+        self.dropdown.setCurrentText('QWERTY')  # Set QWERTY as the default option
 
         dropdown_label = QLabel('Keyboard Layout:')
         dropdown_layout.addWidget(dropdown_label)
@@ -228,10 +302,6 @@ class MainWindow(QWidget):  # GUI interface
 
         self.setLayout(main_layout)
 
-    def populate_dropdown(self):
-        for name, key in [('Arabic', 'ar'), ('AZERTY', 'ay'), ('Colemak', 'ck'), ('Dvorak', 'dk'), ('Greek', 'gr'), ('Hebrew', 'he'), ('HCESAR', 'hr'), ('JCUKEN', 'jn'), ('QWERTY', 'qy'), ('QWERTZ', 'qz'), ('Workman', 'wn')]:
-            self.dropdown.addItem(name, key)
-
     def handle_submit(self):
         layout_key = self.dropdown.currentData()
         input_text = self.textbox.toPlainText()
@@ -244,15 +314,16 @@ class MainWindow(QWidget):  # GUI interface
             elif self.decode_radio.isChecked():
                 output_text = self.encoder_decoder.decode_text(input_text)
             
-            self.textbox.setText(output_text)
+            self.show_message("Output", output_text)
 
         except Exception as error:
-            handle_error(error)
+            logging.error("Error during processing", exc_info=True)
             self.show_message("Error", "An error occurred during processing.")
 
     def handle_reset(self):
         self.dropdown.setCurrentIndex(0)
         self.encode_radio.setChecked(True)
+        self.dropdown.setCurrentText('QWERTY')
         self.textbox.clear()
 
     def show_message(self, title, message):
@@ -261,42 +332,32 @@ class MainWindow(QWidget):  # GUI interface
         msg_box.setText(message)
         msg_box.exec_()
 
-def handle_error(error):
-    errors = {
-        FileNotFoundError:      "File not found. Please try again.",
-        IndexError:             "No argument provided. Use '-h' or '--help' for usage information.",
-        'InvalidArgumentError': "Invalid argument. Use '-h' or '--help' for help.",
-        'InvalidInputError':    "Invalid input. Please try again.",
-        'InvalidLayoutError':   "Invalid layout. Please try again.",
-        UnboundLocalError:      "Cannot access local variable. This may be caused by invalid input."
-    }
-
-    if isinstance(error, Exception):
-        print(f"{type(error).__name__}: {errors.get(type(error), str(error))}")
-    elif isinstance(error, str):
-        print(f"{error}: {errors.get(error, 'An unknown error occurred.')}")
-    else:
-        print("Error: An unknown error occurred.")
 
 def main():
     """
     Determine which interface to run.
     """
     try:
-        argument = sys.argv[1].lower()  # Ensure case-insensitive handling
+        argument = sys.argv[1].lower()
         if argument in ("-g", "--graphical"):
             app = QApplication(sys.argv)
-            window = MainWindow(layouts, encode_special_mappings, decode_special_mappings)
+            window = MainWindow()
             window.show()
             sys.exit(app.exec_())
         elif argument in ("-c", "--console"):
-            console_interface(layouts, encode_special_mappings, decode_special_mappings)
+            ConsoleInterface().main()
         elif argument in ("-h", "--help"):
-            print('Usage:\n -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n -c, --console:   Run the application in console mode.\n -h, --help:      Display this help message.')
+            print("Usage:\n"
+                  " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
+                  " -c, --console:   Run the application in console mode.\n"
+                  " -h, --help:      Display this help message.")
         else:
-            handle_error('InvalidArgumentError')
+            logging.error("Invalid argument. Use '-h' or '--help' for help.")
+    except IndexError:
+        logging.error("No argument provided. Use '-h' or '--help' for usage information.")
     except Exception as error:
-        handle_error(error)
+        logging.error("Unexpected error occurred", exc_info=True)
+
 
 if __name__ == "__main__":
     main()
