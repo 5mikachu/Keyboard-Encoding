@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox
 )
 from layouts import KeyboardLayouts
+from config import GeneralConfig, ConsoleConfig, GUIConfig
 
 
 # Setting up logging for error tracking and debugging
@@ -93,7 +94,7 @@ class EncodeDecode:
                 encoded_text.append(self.encode_special_mappings[char])
             else:
                 logging.warning(f"Unknown character encountered: {char}")
-                encoded_text.append('�')  # Unknown character
+                encoded_text.append('�')
 
         return ' '.join(encoded_text)
 
@@ -121,7 +122,7 @@ class EncodeDecode:
                 decoded_text.append(self.decode_special_mappings[code])
             else:
                 logging.warning(f"Unknown code encountered: {code}")
-                decoded_text.append('�')  # Unknown code
+                decoded_text.append('�')
 
         return ''.join(decoded_text)
 
@@ -135,15 +136,24 @@ class ConsoleInterface:
         """
         Runs the console interface for encoding and decoding text.
         """
-        self.choose_layout()
-
+        if GeneralConfig.default_layout in [key for key, name in self.available_layouts]:
+                self.encoder_decoder.initialize_layout_dictionaries(GeneralConfig.default_layout)
+        else:
+            self.handle_choose_layout()
+        
         actions = {
-            '1': self.encode,
-            '2': self.decode,
-            '3': self.choose_layout,
+            '1': self.handle_encode,
+            'encode': self.handle_encode,
+            '2': self.handle_decode,
+            'decode': self.handle_decode,
+            '3': self.handle_choose_layout,
+            'switch layout': self.handle_choose_layout,
             '4': self.handle_add_layout,
-            '5': self.switch_to_gui,
-            '6': self.exit_program,
+            'add layout': self.handle_add_layout,
+            '5': self.handle_switch_to_gui,
+            'switch to gui': self.handle_switch_to_gui,
+            '6': self.handle_exit_program,
+            'exit': self.handle_exit_program
         }
 
         while True:
@@ -161,7 +171,25 @@ class ConsoleInterface:
             else:
                 logging.error("Invalid input. Please try again.")
 
-    def choose_layout(self):
+    def handle_encode(self):
+        text_to_encode = self.get_input_text("encode")
+
+        try:
+            encoded_text = self.encoder_decoder.encode_text(text_to_encode)
+            print("\nEncoded Text:\n", encoded_text)
+        except Exception:
+            logging.error("Error during encoding", exc_info=True)
+
+    def handle_decode(self):
+        text_to_decode = self.get_input_text("decode")
+
+        try:
+            decoded_text = self.encoder_decoder.decode_text(text_to_decode)
+            print("\nDecoded Text:\n", decoded_text)
+        except Exception:
+            logging.error("Error during decoding", exc_info=True)
+
+    def handle_choose_layout(self):
         while True:
             layout = input("\nInsert Layout:\n").strip().lower()
 
@@ -186,68 +214,74 @@ class ConsoleInterface:
         except ValueError as e:
             logging.error(str(e))
 
-    def get_layout_input(self, case_type):
-        layout = []
-        row_number = 1
-
-        while True:
-            row = input(f"Enter row {row_number} for {case_type} (leave blank to finish): ").strip()
-            row_number += 1
-            if not row:
-                row_number == 0
-                break
-            layout.append(list(row))
-        return layout
-
-    def encode(self):
-        text_to_encode = self.get_input_text("encode")
-        try:
-            encoded_text = self.encoder_decoder.encode_text(text_to_encode)
-            print("\nEncoded Text:\n", encoded_text)
-        except Exception as error:
-            logging.error("Error during encoding", exc_info=True)
-
-    def decode(self):
-        text_to_decode = self.get_input_text("decode")
-        try:
-            decoded_text = self.encoder_decoder.decode_text(text_to_decode)
-            print("\nDecoded Text:\n", decoded_text)
-        except Exception as error:
-            logging.error("Error during decoding", exc_info=True)
-
-    def switch_to_gui(self):
+    def handle_switch_to_gui(self):
         app = QApplication(sys.argv)
         window = MainWindow()
         window.show()
         sys.exit(app.exec_())
 
-    def exit_program(self):
+    def handle_exit_program(self):
         print("Exiting the program.")
         sys.exit(0)
 
-    def get_input_text(self, operation):
-        choice_type = input(f"\nWhat would you like to {operation}\n 1 - text\n 2 - file\n").strip().lower()
-        if choice_type in {'1', 'text'}:
-            return input(f"\nEnter the text to {operation}:\n")
-        elif choice_type in {'2', 'file'}:
-            file_path = input("\nEnter the file name: \n")
-            try:
-                with open(file_path, 'r') as file:
-                    return file.read()
-            except FileNotFoundError:
-                logging.error("File not found. Please try again.")
-            except Exception as error:
-                logging.error("Error reading file", exc_info=True)
-        else:
-            logging.error("Invalid input. Please try again.")
-            return self.get_input_text(operation)
+    def get_layout_input(self, case_type):
+        layout = []
+        row_number = 1
 
+        while True:
+            row = input(f"Enter row {row_number} for {case_type}: ").strip()
+            row_number += 1
+            
+            if not row or row_number > ConsoleConfig.max_row_num:
+                row_number == 1
+                break
+            layout.append(list(row))
+        return layout
+
+    def get_input_text(self, operation):
+        actions = {
+            '1': self.get_input_from_text,
+            'text': self.get_input_from_text,
+            '2': self.get_input_from_file,
+            'file': self.get_input_from_file
+        }
+        
+        if ConsoleConfig.skip_input_type == True:
+            return  self.get_input_from_text(operation)
+        else:
+            choice_type = input(f"\nWhat would you like to {operation}\n"
+                                 " 1 - text\n"
+                                 " 2 - file\n").strip().lower()
+            
+            action = actions.get(choice_type)
+            if action:
+                return  action(operation)
+            else:
+                logging.error("Invalid input. Please try again.")
+                return self.get_input_text(operation)
+        
+    def get_input_from_text(self, operation):
+        return input(f"\nEnter the text to {operation}:\n")
+    
+    def get_input_from_file(self, operation):
+        file_path = input(f"\nEnter the file to {operation}: \n")
+        try:
+            with open(file_path, 'r') as file:
+                return file.read()
+        except FileNotFoundError:
+            logging.error("File not found. Please try again.")
+        except Exception:
+            logging.error("Error reading file", exc_info=True)
+ 
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.encoder_decoder = EncodeDecode()
+        self.default_layout = KeyboardLayouts.get_layout_name(GeneralConfig.default_layout) \
+            if GeneralConfig.default_layout is not None else 'QWERTY'
         self.initUI()
+        self.handle_reset()
 
     def initUI(self):
         self.setWindowTitle('Keyboard Encoding')
@@ -262,7 +296,6 @@ class MainWindow(QWidget):
         self.dropdown = QComboBox()
         for key, name in self.encoder_decoder.layouts.list_layouts():
             self.dropdown.addItem(name, key)
-        self.dropdown.setCurrentText('QWERTY')  # Set QWERTY as the default option
 
         dropdown_label = QLabel('Keyboard Layout:')
         dropdown_layout.addWidget(dropdown_label)
@@ -271,7 +304,6 @@ class MainWindow(QWidget):
         # Radio buttons
         self.encode_radio = QRadioButton('Encode')
         self.decode_radio = QRadioButton('Decode')
-        self.encode_radio.setChecked(True)  # Set Encode as the default option
 
         self.radio_group = QButtonGroup()
         self.radio_group.addButton(self.encode_radio)
@@ -316,14 +348,15 @@ class MainWindow(QWidget):
             
             self.show_message("Output", output_text)
 
-        except Exception as error:
+        except Exception:
             logging.error("Error during processing", exc_info=True)
             self.show_message("Error", "An error occurred during processing.")
 
     def handle_reset(self):
         self.dropdown.setCurrentIndex(0)
-        self.encode_radio.setChecked(True)
-        self.dropdown.setCurrentText('QWERTY')
+        self.encode_radio.setChecked(GUIConfig.default_operation == 'encode')
+        self.decode_radio.setChecked(GUIConfig.default_operation == 'decode')
+        self.dropdown.setCurrentText(self.default_layout)
         self.textbox.clear()
 
     def show_message(self, title, message):
@@ -355,7 +388,7 @@ def main():
             logging.error("Invalid argument. Use '-h' or '--help' for help.")
     except IndexError:
         logging.error("No argument provided. Use '-h' or '--help' for usage information.")
-    except Exception as error:
+    except Exception:
         logging.error("Unexpected error occurred", exc_info=True)
 
 

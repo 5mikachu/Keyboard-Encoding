@@ -8,11 +8,13 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 
 # Features
 
-* **Multiple Keyboard Layouts**: Supports AZERTY, Colemak, Dvorak, HCESAR, QWERTY, QWERTZ, and Workman.
+* **Multiple Keyboard Layouts**: Supports AZERTY, Colemak, Dvorak, HCESAR, QWERTY, QWERTZ, Workman and more.
 * **Encoding and Decoding**: Converts text to encoded format and vice versa.
 * **File Handling**: Can 'encode' and 'decode' text from files.
 * **Interactive Menu**: Both a GUI and console based interface.
 * **Layout Switching**: It is possible to switch layout (when decoding).
+* **Adding custom Layouts**: It is posable to ad your own layout.
+* **Customization**: If by customization you mean changing values in a config...
 
 # Examples
 
@@ -65,16 +67,12 @@ _At the moment this is the only menu, but Main Menu sound better._
 
 When running the program, you will be prompted to select a keyboard layout. Currently available options are:
 
-* ar: Arabic
 * ay: AZERTY
 * ck: Colemak
 * dk: Dvorak
-* gr: Greek
-* he: Hebrew
 * hr: HCESAR
 * qy: QWERTY
 * qz: QWERTZ
-* ru: Cyrillic
 * wn: Workman
 
 After selecting a layout, the main menu will provide the following options:
@@ -117,7 +115,7 @@ Characters are stored as 'text-nibbles' formatted as 00x00:
 
 |0  |0  |x  |0  |  0|
 |---|---|---|---|---|
-|Uppercase if 1|column num. (1-3)||Row num.1|Row num.2|
+|Def. case|column num. (1-3)||Row num.1|Row num.2|
 
 ## Special characters
 
@@ -136,15 +134,6 @@ encode_special_mappings = {
     '̂': '00x03',   # Circumflex
     '̃': '00x04',   # Tilde
     '̄': '00x05',   # Macron
-    '̅': '00x06',   # Overline
-    '̆': '00x07',   # Breve
-    '̇': '00x08',   # Dot above
-    '̈': '00x09',   # Diaeresis (Umlaut)
-    '̉': '00x0A',   # Hook above
-    '̊': '00x0B',   # Ring above
-    '̋': '00x0C',   # Double acute accent
-    '̌': '00x0D',   # Caron (Hacek)
-    '̍': '00x0E',   # Vertical line above
     
     # And so on...
 }
