@@ -1,16 +1,12 @@
+import logging
 import sys
 import unicodedata
-import logging
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, 
-    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
+    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox,
 )
 from layouts import KeyboardLayouts
 from config import GeneralConfig, ConsoleConfig, GUIConfig
-
-
-# Setting up logging for error tracking and debugging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class EncodeDecode:
@@ -53,11 +49,6 @@ class EncodeDecode:
 
         Args:
             layout_key (str): The short name for the used layout.
-        
-        Returns:
-            tuple: A tuple containing two dictionaries:
-                - encoding_dict (dict): Dictionary for encoding characters to codes.
-                - decoding_dict (dict): Dictionary for decoding codes to characters.
         """
         if layout_key in self.encoding_dict:
             return  # Avoid reinitializing if already done
@@ -68,11 +59,14 @@ class EncodeDecode:
             logging.error(str(e))
             raise ValueError(str(e))
 
-        lowercase_encoding_dict, lowercase_decoding_dict = self.generate_layout_dicts(self.layout_lowercase, '0')
-        uppercase_encoding_dict, uppercase_decoding_dict = self.generate_layout_dicts(self.layout_uppercase, '1')
-
-        self.encoding_dict = {**lowercase_encoding_dict, **uppercase_encoding_dict}
-        self.decoding_dict = {**lowercase_decoding_dict, **uppercase_decoding_dict}
+        # Initialize encoding and decoding dictionaries
+        for prefix, layout in (('0', self.layout_lowercase), ('1', self.layout_uppercase)):
+            for row_idx, row in enumerate(layout):
+                for col_idx, char in enumerate(row):
+                    if char.strip():  # Ignore empty spaces in the layout
+                        code = f"{prefix}{row_idx+1:01}x{col_idx+1:02}"
+                        self.encoding_dict[char] = code
+                        self.decoding_dict[code] = char
 
     def encode_text(self, text):
         """
@@ -130,14 +124,14 @@ class EncodeDecode:
 class ConsoleInterface:
     def __init__(self):
         self.encoder_decoder = EncodeDecode()
-        self.available_layouts = self.encoder_decoder.layouts.list_layouts()
+        self.valid_layouts = {key for key, _ in KeyboardLayouts.list_layouts()}
 
     def main(self):
         """
         Runs the console interface for encoding and decoding text.
         """
-        if GeneralConfig.default_layout in [key for key, name in self.available_layouts]:
-                self.encoder_decoder.initialize_layout_dictionaries(GeneralConfig.default_layout)
+        if GeneralConfig.default_layout is not None:
+            self.encoder_decoder.initialize_layout_dictionaries(GeneralConfig.default_layout)
         else:
             self.handle_choose_layout()
         
@@ -169,7 +163,7 @@ class ConsoleInterface:
             if action:
                 action()
             else:
-                logging.error("Invalid input. Please try again.")
+                logging.info("Invalid input. Please try again.")
 
     def handle_encode(self):
         text_to_encode = self.get_input_text("encode")
@@ -193,13 +187,13 @@ class ConsoleInterface:
         while True:
             layout = input("\nInsert Layout:\n").strip().lower()
 
-            if layout in [key for key, name in self.available_layouts]:
+            if layout in self.valid_layouts:
                 self.encoder_decoder.initialize_layout_dictionaries(layout)
                 break
             elif layout == 'add layout':
                 self.handle_add_layout()
             else:
-                logging.error("Invalid layout. Please try again.")
+                logging.info("Invalid layout. Please try again.")
 
     def handle_add_layout(self):
         key = input("\nLayout key:  ").strip().lower()
@@ -257,7 +251,7 @@ class ConsoleInterface:
             if action:
                 return  action(operation)
             else:
-                logging.error("Invalid input. Please try again.")
+                logging.info("Invalid input. Please try again.")
                 return self.get_input_text(operation)
         
     def get_input_from_text(self, operation):
@@ -278,8 +272,10 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.encoder_decoder = EncodeDecode()
-        self.default_layout = KeyboardLayouts.get_layout_name(GeneralConfig.default_layout) \
-            if GeneralConfig.default_layout is not None else 'QWERTY'
+        if GeneralConfig.default_layout != None:
+            self.default_layout = KeyboardLayouts.get_layout_name(GeneralConfig.default_layout)
+        else:
+            self.default_layout = 'QWERTY'
         self.initUI()
         self.handle_reset()
 
@@ -366,6 +362,26 @@ class MainWindow(QWidget):
         msg_box.exec_()
 
 
+def validate_config():
+    # Validate GeneralConfig.default_layout
+    valid_layouts = {key for key, _ in KeyboardLayouts.list_layouts()}
+    if GeneralConfig.default_layout not in valid_layouts:
+        GeneralConfig.default_layout = None
+        logging.info("Invalid layout in config. Setting to None.")
+
+    # Validate ConsoleConfig.max_row_num
+    try:
+        ConsoleConfig.max_row_num = int(ConsoleConfig.max_row_num)
+    except (TypeError, ValueError):
+        ConsoleConfig.max_row_num = 4
+        logging.info("Invalid number of rows provided in config. Setting to default 4.")
+
+    # Validate ConsoleConfig.skip_input_type
+    if not isinstance(ConsoleConfig.skip_input_type, bool):
+        ConsoleConfig.skip_input_type = False
+        logging.info("Invalid argument for skip_input_type. Setting to default False.")
+
+
 def main():
     """
     Determine which interface to run.
@@ -385,7 +401,7 @@ def main():
                   " -c, --console:   Run the application in console mode.\n"
                   " -h, --help:      Display this help message.")
         else:
-            logging.error("Invalid argument. Use '-h' or '--help' for help.")
+            logging.info("Invalid argument. Use '-h' or '--help' for help.")
     except IndexError:
         logging.error("No argument provided. Use '-h' or '--help' for usage information.")
     except Exception:
@@ -393,4 +409,9 @@ def main():
 
 
 if __name__ == "__main__":
+    # Setting up logging for error tracking and debugging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    validate_config()
+
     main()
