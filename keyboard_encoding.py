@@ -1,12 +1,12 @@
 import logging
 import sys
 import unicodedata
+from configparser import ConfigParser
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox,
 )
 from layouts import KeyboardLayouts
-from config import GeneralConfig, ConsoleConfig, GUIConfig
 
 
 class EncodeDecode:
@@ -130,11 +130,12 @@ class ConsoleInterface:
         """
         Runs the console interface for encoding and decoding text.
         """
-        if GeneralConfig.default_layout is not None:
-            self.encoder_decoder.initialize_layout_dictionaries(GeneralConfig.default_layout)
+        default_layout = config.get('GeneralConfig', 'default_layout', fallback=None)
+        if default_layout is not None:
+            self.encoder_decoder.initialize_layout_dictionaries(default_layout)
         else:
             self.handle_choose_layout()
-        
+
         actions = {
             '1': self.handle_encode,
             'encode': self.handle_encode,
@@ -144,8 +145,8 @@ class ConsoleInterface:
             'switch layout': self.handle_choose_layout,
             '4': self.handle_add_layout,
             'add layout': self.handle_add_layout,
-            '5': self.handle_switch_to_gui,
-            'switch to gui': self.handle_switch_to_gui,
+            '5': start_graphical,
+            'switch to gui': start_graphical,
             '6': self.handle_exit_program,
             'exit': self.handle_exit_program
         }
@@ -208,17 +209,12 @@ class ConsoleInterface:
         except ValueError as e:
             logging.error(str(e))
 
-    def handle_switch_to_gui(self):
-        app = QApplication(sys.argv)
-        window = MainWindow()
-        window.show()
-        sys.exit(app.exec_())
-
     def handle_exit_program(self):
         print("Exiting the program.")
         sys.exit(0)
 
     def get_layout_input(self, case_type):
+        max_row_num = config.getint('ConsoleConfig', 'max_row_num', fallback=4)
         layout = []
         row_number = 1
 
@@ -226,13 +222,14 @@ class ConsoleInterface:
             row = input(f"Enter row {row_number} for {case_type}: ").strip()
             row_number += 1
             
-            if not row or row_number > ConsoleConfig.max_row_num:
-                row_number == 1
+            if not row or row_number > max_row_num:
+                row_number = 1
                 break
             layout.append(list(row))
         return layout
 
     def get_input_text(self, operation):
+        skip_input_type = config.getboolean('ConsoleConfig', 'skip_input_type', fallback=False)
         actions = {
             '1': self.get_input_from_text,
             'text': self.get_input_from_text,
@@ -240,8 +237,8 @@ class ConsoleInterface:
             'file': self.get_input_from_file
         }
         
-        if ConsoleConfig.skip_input_type == True:
-            return  self.get_input_from_text(operation)
+        if skip_input_type:
+            return self.get_input_from_text(operation)
         else:
             choice_type = input(f"\nWhat would you like to {operation}\n"
                                  " 1 - text\n"
@@ -272,10 +269,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.encoder_decoder = EncodeDecode()
-        if GeneralConfig.default_layout != None:
-            self.default_layout = KeyboardLayouts.get_layout_name(GeneralConfig.default_layout)
-        else:
-            self.default_layout = 'QWERTY'
+        self.default_layout = KeyboardLayouts.get_layout_name(config.get('GeneralConfig', 'default_layout', fallback='qy'))
         self.initUI()
         self.handle_reset()
 
@@ -349,9 +343,9 @@ class MainWindow(QWidget):
             self.show_message("Error", "An error occurred during processing.")
 
     def handle_reset(self):
-        self.dropdown.setCurrentIndex(0)
-        self.encode_radio.setChecked(GUIConfig.default_operation == 'encode')
-        self.decode_radio.setChecked(GUIConfig.default_operation == 'decode')
+        default_operation = config.get('GUIConfig', 'default_operation', fallback='encode')
+        self.encode_radio.setChecked(default_operation == 'encode')
+        self.decode_radio.setChecked(default_operation == 'decode')
         self.dropdown.setCurrentText(self.default_layout)
         self.textbox.clear()
 
@@ -363,43 +357,63 @@ class MainWindow(QWidget):
 
 
 def validate_config():
-    # Validate GeneralConfig.default_layout
+    # Validate GeneralConfig default_layout
     valid_layouts = {key for key, _ in KeyboardLayouts.list_layouts()}
-    if GeneralConfig.default_layout not in valid_layouts:
-        GeneralConfig.default_layout = None
-        logging.info("Invalid layout in config. Setting to None.")
+    default_layout = config.get('GeneralConfig', 'default_layout', fallback=None)
+    if default_layout not in valid_layouts:
+        config.set('GeneralConfig', 'default_layout', 'qy')
+        logging.info("Invalid layout in config. Setting to QWERTY.")
 
-    # Validate ConsoleConfig.max_row_num
-    try:
-        ConsoleConfig.max_row_num = int(ConsoleConfig.max_row_num)
-    except (TypeError, ValueError):
-        ConsoleConfig.max_row_num = 4
+    # Validate ConsoleConfig max_row_num
+    max_row_num = config.getint('ConsoleConfig', 'max_row_num', fallback=4)
+    if not isinstance(max_row_num, int):
+        config.set('ConsoleConfig', 'max_row_num', '4')
         logging.info("Invalid number of rows provided in config. Setting to default 4.")
 
-    # Validate ConsoleConfig.skip_input_type
-    if not isinstance(ConsoleConfig.skip_input_type, bool):
-        ConsoleConfig.skip_input_type = False
+    # Validate ConsoleConfig skip_input_type
+    skip_input_type = config.getboolean('ConsoleConfig', 'skip_input_type', fallback=False)
+    if not isinstance(skip_input_type, bool):
+        config.set('ConsoleConfig', 'skip_input_type', 'False')
         logging.info("Invalid argument for skip_input_type. Setting to default False.")
+
+    # Validate GUIConfig default_operation
+    default_operation = config.get('GUIConfig', 'default_operation', fallback='encode')
+    if default_operation not in ('encode', 'decode'):
+        config.set('GUIConfig', 'default_operation', 'encode')
+        logging.info("Invalid argument for default_operation. Setting to default Encode.")
+
+
+def start_graphical():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+
+
+def help():
+    print("Usage:\n"
+            " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
+            " -c, --console:   Run the application in console mode.\n"
+            " -h, --help:      Display this help message.")
 
 
 def main():
     """
     Determine which interface to run.
     """
+    actions = {
+        '-g': start_graphical,
+        '--graphical': start_graphical,
+        '-c': ConsoleInterface().main,
+        '--console': ConsoleInterface().main,
+        '-h': help,
+        '--help': help
+    }
+
     try:
-        argument = sys.argv[1].lower()
-        if argument in ("-g", "--graphical"):
-            app = QApplication(sys.argv)
-            window = MainWindow()
-            window.show()
-            sys.exit(app.exec_())
-        elif argument in ("-c", "--console"):
-            ConsoleInterface().main()
-        elif argument in ("-h", "--help"):
-            print("Usage:\n"
-                  " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
-                  " -c, --console:   Run the application in console mode.\n"
-                  " -h, --help:      Display this help message.")
+        action = actions.get(sys.argv[1].lower())
+        if action:
+            action()
         else:
             logging.info("Invalid argument. Use '-h' or '--help' for help.")
     except IndexError:
@@ -412,6 +426,9 @@ if __name__ == "__main__":
     # Setting up logging for error tracking and debugging
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+    # Load config
+    config = ConfigParser()
+    config.read('config.ini')
     validate_config()
 
     main()

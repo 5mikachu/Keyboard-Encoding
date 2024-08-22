@@ -152,12 +152,10 @@ Enter row 1 for lowercase: ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0
 Enter row 2 for lowercase: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\']
 Enter row 3 for lowercase: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' ']
 Enter row 4 for lowercase: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
-Enter row 5 for lowercase: 
 Enter row 1 for uppercase: ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
 Enter row 2 for uppercase: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|']
 Enter row 3 for uppercase: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' ']
 Enter row 4 for uppercase: ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
-Enter row 5 for uppercase: 
 ```
 
 To get to the add_layout() function, simply type 'add layout' when prompted for a layout or choose 4 in the main menu.
