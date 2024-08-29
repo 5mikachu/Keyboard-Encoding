@@ -38,7 +38,8 @@ _Unless stated otherwise, QWERTY was used._
 # Requirements
 
 * Python 3.x
-* layouts.py file containing keyboard layout definitions
+* layouts.json file containing keyboard layout definitions
+* config.ini with correctly set parameters
 
 # Usage
 
@@ -90,23 +91,24 @@ When either Encode or Decode is chosen you will be prompted if you want to encod
 
 ## Layouts
 
-Layouts are imported from layouts.py, which must contain the name and the data for lowercase and uppercase letters for each layout.
+Layouts are imported from layouts.json, which must contain the name and the data for lowercase and uppercase letters for each layout.
 
-``` py
-'qy': {
-    'name': 'QWERTY',
-    'lowercase': [
-        ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
-        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' '],
-        ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
+``` json
+"qy": {
+    "name": "QWERTY",
+    "lowercase": [
+        ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", " "],
+        ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/", " ", " "]
     ],
-    'uppercase': [
-        ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
-        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|'],
-        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' '],
-        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
+    "uppercase": [
+        ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"],
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", " "],
+        ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", " ", " "]
     ]
+},
 ```
 
 ## UPPERCASE vs lowercase
@@ -119,21 +121,20 @@ Characters are stored as 'text-nibbles' formatted as 00x00:
 
 ## Special characters
 
-``` py
+``` json
 encode_special_mappings = {
-    ' ': '00x00',  # SPACE
-    '\n': '10x00', # Newline
-    '\t': '10x01', # Tab
-    '\r': '10x02', # Carriage return
-    '\b': '10x03', # Backspace
-    '\f': '10x04', # Form feed
-    '\v': '10x05', # Vertical tab
-    '\a': '10x06', # Bell/alert
-    '̀': '00x01',   # Grave accent
-    '́': '00x02',   # Acute accent
-    '̂': '00x03',   # Circumflex
-    '̃': '00x04',   # Tilde
-    '̄': '00x05',   # Macron
+    " ": "00x00",
+    "\n": "10x00",
+    "\t": "10x01",
+    "\r": "10x02",
+    "\b": "10x03",
+    "\f": "10x04",
+    "\u0300": "00x01",
+    "\u0301": "00x02",
+    "\u0302": "00x03",
+    "\u0303": "00x04",
+    "\u0304": "00x05",
+    "\u0305": "00x06",
     
     # And so on...
 }
@@ -148,14 +149,14 @@ As example, if the user wants to add QWERTY (they wouldn't be able to, as it alr
 ``` sh
 layout key:  qy
 Layout name: QWERTY
-Enter row 1 for lowercase: ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=']
-Enter row 2 for lowercase: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\']
-Enter row 3 for lowercase: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', ' ']
-Enter row 4 for lowercase: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', ' ']
-Enter row 1 for uppercase: ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+']
-Enter row 2 for uppercase: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '|']
-Enter row 3 for uppercase: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', ' ']
-Enter row 4 for uppercase: ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', ' ']
+Enter row 1 for lowercase: ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="]
+Enter row 2 for lowercase: ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"]
+Enter row 3 for lowercase: ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", " "]
+Enter row 4 for lowercase: ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/", " ", " "]
+Enter row 1 for uppercase: ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"]
+Enter row 2 for uppercase: ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|"]
+Enter row 3 for uppercase: ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", " "]
+Enter row 4 for uppercase: ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", " ", " "]
 ```
 
 To get to the add_layout() function, simply type 'add layout' when prompted for a layout or choose 4 in the main menu.
