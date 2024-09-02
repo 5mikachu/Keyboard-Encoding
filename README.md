@@ -121,8 +121,10 @@ Characters are stored as 'text-nibbles' formatted as 00x00:
 
 ## Special characters
 
+Special characters can be found in special_mappings.json and are structured as seen below.
+
 ``` json
-encode_special_mappings = {
+{
     " ": "00x00",
     "\n": "10x00",
     "\t": "10x01",
@@ -136,7 +138,7 @@ encode_special_mappings = {
     "\u0304": "00x05",
     "\u0305": "00x06",
     
-    # And so on...
+    // And so on...
 }
 ```
 

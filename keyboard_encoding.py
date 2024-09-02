@@ -26,7 +26,7 @@ class EncodeDecode:
             layout_key (str): The short name for the used layout.
         """
         if layout_key in self.encoding_dict:
-            return  # Avoid reinitializing if already done
+            return  # Use cached dictionaries
 
         try:
             self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
@@ -256,23 +256,35 @@ class ConsoleInterface:
     def handle_encode(self):
         text_to_encode = self.get_input_text("encode")
 
+        if not text_to_encode:
+            logging.error("No text provided for encoding.")
+            return
+
         try:
             encoded_text = self.encoder_decoder.encode_text(text_to_encode)
             print("\nEncoded Text:\n", encoded_text)
-        except Exception:
+        except Exception as e:
             logging.error("Error during encoding", exc_info=True)
+            print(f"An error occurred during encoding: {e}")
 
     def handle_decode(self):
         text_to_decode = self.get_input_text("decode")
 
+        if not text_to_decode:
+            logging.error("No text provided for decoding.")
+            return
+
         try:
             decoded_text = self.encoder_decoder.decode_text(text_to_decode)
             print("\nDecoded Text:\n", decoded_text)
-        except Exception:
+        except Exception as e:
             logging.error("Error during decoding", exc_info=True)
+            print(f"An error occurred during decoding: {e}")
 
     def handle_choose_layout(self):
-        while True:
+        retry_count = self.config.getint('ConsoleConfig', 'prompt_for_retries', fallback=3)
+
+        while retry_count > 0:
             layout = input("\nInsert Layout:\n").strip().lower()
 
             if layout in self.valid_layouts:
@@ -282,6 +294,10 @@ class ConsoleInterface:
                 self.handle_add_layout()
             else:
                 logging.info("Invalid layout. Please try again.")
+                retry_count -= 1
+
+        if retry_count == 0:
+            logging.error("Exceeded maximum retries for selecting layout.")
 
     def handle_add_layout(self):
         key = input("\nLayout key:  ").strip().lower()
@@ -353,16 +369,18 @@ class ConsoleInterface:
  
 
 class MainWindow(QWidget):
-    def __init__(self):
+    def __init__(self, config, layouts):
         super().__init__()
         self.encoder_decoder = EncodeDecode(layouts)
         self.layout_functions = layouts
         self.default_layout = self.layout_functions.get_layout_name(config.get('GeneralConfig', 'default_layout', fallback='qy'))
         self.config = config
-        self.initUI()
+        self.apply_theme()
+        self.init_UI()
+        self.set_window_size()
         self.handle_reset()
 
-    def initUI(self):
+    def init_UI(self):
         self.setWindowTitle('Keyboard Encoding')
 
         # Layouts
@@ -417,6 +435,10 @@ class MainWindow(QWidget):
         layout_key = self.dropdown.currentData()
         input_text = self.textbox.toPlainText()
 
+        if not input_text.strip():
+            self.show_message("Error", "Input text cannot be empty.")
+            return
+
         try:
             self.encoder_decoder.initialize_layout_dictionaries(layout_key)
 
@@ -424,12 +446,14 @@ class MainWindow(QWidget):
                 output_text = self.encoder_decoder.encode_text(input_text)
             elif self.decode_radio.isChecked():
                 output_text = self.encoder_decoder.decode_text(input_text)
-            
-            self.show_message("Output", output_text)
+            else:
+                self.show_message("Error", "Please select an operation (encode/decode).")
+                return
 
-        except Exception:
+            self.show_message("Output", output_text)
+        except Exception as e:
             logging.error("Error during processing", exc_info=True)
-            self.show_message("Error", "An error occurred during processing.")
+            self.show_message("Error", f"An error occurred during processing: {e}")
 
     def handle_reset(self):
         default_operation = self.config.get('GUIConfig', 'default_operation', fallback='encode')
@@ -444,10 +468,29 @@ class MainWindow(QWidget):
         msg_box.setText(message)
         msg_box.exec_()
 
+    def apply_theme(self):
+        theme = self.config.get('GUIConfig', 'theme', fallback='light')
+
+        if theme == 'dark':
+            self.setStyleSheet("background-color: #2E2E2E; color: white;")
+        elif theme == 'light':
+            self.setStyleSheet("background-color: white; color: black;")
+    
+    def set_window_size(self):
+        width = self.config.getint('GUIConfig', 'window_width', fallback=800)
+        height = self.config.getint('GUIConfig', 'window_height', fallback=600)
+        self.resize(width, height)
+
 class Startup:
     def __init__(self, config):
         self.layout_functions = LayoutFunctions()
         self.config = config
+        self.setup_logging()
+
+    def setup_logging(self):
+        log_level_str = self.config.get('GeneralConfig', 'logging_level', fallback='INFO').upper()
+        log_level = getattr(logging, log_level_str, logging.INFO)
+        logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
 
     def validate_config(self):
         # Validate GeneralConfig default_layout
@@ -474,6 +517,24 @@ class Startup:
         if default_operation not in ('encode', 'decode'):
             self.config.set('GUIConfig', 'default_operation', 'encode')
             logging.info("Invalid argument for default_operation. Setting to default Encode.")
+
+        # Validate GUIConfig theme
+        theme = self.config.get('GUIConfig', 'theme', fallback='light')
+        if theme not in ('dark', 'light'):
+            self.config.set('GUIConfig', 'theme', 'light')
+            logging.info("Invalid argument for theme. Setting to Light")
+
+        # Validate GUIConfig window_width
+        window_width = self.config.getint('GUIConfig', 'window_width', fallback='400')
+        if not isinstance(window_width, int):
+            self.config.set('GUIConfig', 'window_width', '400')
+            logging.info("Invalid argument for window_width. Setting to 400")
+
+        # Validate GUIConfig window_height
+        window_height = self.config.getint('GUIConfig', 'window_height', fallback='400')
+        if not isinstance(window_height, int):
+            self.config.set('GUIConfig', 'window_height', '400')
+            logging.info("Invalid argument for window_height. Setting to 400")
 
     def start_graphical(self):
         app = QApplication(sys.argv)
@@ -513,9 +574,6 @@ class Startup:
 
 
 if __name__ == "__main__":
-    # Setting up logging for error tracking and debugging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
     # Load config
     config = ConfigParser()
     config.read('config.ini')
