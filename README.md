@@ -11,8 +11,8 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 * **Multiple Keyboard Layouts**: Supports AZERTY, Colemak, Dvorak, HCESAR, QWERTY, QWERTZ, Workman and more.
 * **Encoding and Decoding**: Converts text to encoded format and vice versa.
 * **File Handling**: Can 'encode' and 'decode' text from files.
-* **Interactive Menu**: Both a GUI and console based interface.
-* **Layout Switching**: It is possible to switch layout (when decoding).
+* **Interactive Menu**: Both a graphical and console based interface.
+* **Layout Switching**: It is possible to switch layout mid de/encode.
 * **Adding custom Layouts**: It is posable to ad your own layout.
 * **Customization**: If by customization you mean changing values in a config...
 
@@ -30,15 +30,17 @@ _Unless stated otherwise, QWERTY was used._
 
 ## Switching layout
 
-**NOT YET POSSIBLE WHEN ENCODING**
-
 **in**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04 02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10  
-**out**: Did you know ~ru~ йцукен ~qy~ is not a word?
+**out**: Did you know ~jn~ йцукен ~qy~ is not a word?
+
+**in**: Did you know ~jn~ йцукен ~qy~ is not a word?  
+**out**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04 02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10
 
 # Requirements
 
 * Python 3.x
 * layouts.json file containing keyboard layout definitions
+* special_layouts.json file containing special mappings
 * config.ini with correctly set parameters
 
 # Usage

@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
 
 class EncodeDecode:
     def __init__(self, layouts):
+        self.layout_functions = LayoutFunctions()
         self.layouts = layouts
         self.encode_special_mappings, self.decode_special_mappings = self.layouts.get_special_mappings()
         self.encoding_dict = {}
@@ -56,15 +57,25 @@ class EncodeDecode:
         encoded_text = []
         normalized_text = unicodedata.normalize('NFD', text)  # Normalize the text using NFD
 
-        for char in normalized_text:
-            if char in self.encoding_dict:
-                encoded_text.append(self.encoding_dict[char])
-            elif char in self.encode_special_mappings:
-                encoded_text.append(self.encode_special_mappings[char])
-            else:
-                logging.warning(f"Unknown character encountered: {char}")
-                encoded_text.append('�')
+        i = 0
+        while i < len(normalized_text):
+            char = normalized_text[i]
 
+            # Check if the code matches a layout key to switch layouts
+            if char == '~':
+                end_marker = normalized_text.find('~', i + 1)
+                key = normalized_text[i + 1:end_marker]
+                if key in dict(self.layout_functions.list_layouts()):
+                    self.initialize_layout_dictionaries(key)
+                    encoded_text.append(key)
+                    i = end_marker + 1
+            encoded_text.append(
+                self.encoding_dict.get(char) or 
+                self.encode_special_mappings.get(char) or 
+                '�'
+            )
+
+            i += 1
         return ' '.join(encoded_text)
 
     def decode_text(self, encoded_text):
@@ -81,18 +92,16 @@ class EncodeDecode:
         codes = encoded_text.split()
 
         for code in codes:
-            if code in self.layouts.list_layouts():  # Switch layout
-                self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(code)
-                decoded_text.append(f"~{code}~")
+            # Check if the code matches a layout key to switch layouts
+            if code in dict(self.layout_functions.list_layouts()):
                 self.initialize_layout_dictionaries(code)
-            elif code in self.decoding_dict:
-                decoded_text.append(self.decoding_dict[code])
-            elif code in self.decode_special_mappings:
-                decoded_text.append(self.decode_special_mappings[code])
+                decoded_text.append(f"~{code}~")
             else:
-                logging.warning(f"Unknown code encountered: {code}")
-                decoded_text.append('�')
-
+                decoded_text.append(
+                    self.decoding_dict.get(code) or 
+                    self.decode_special_mappings.get(code) or 
+                    '�'
+                )
         return ''.join(decoded_text)
 
 
@@ -166,7 +175,7 @@ class LayoutFunctions:
         """
         if key in self.layouts:
             raise ValueError(f"Layout with key '{key}' already exists")
-        
+
         self.layouts[key] = {
             'name': name,
             'lowercase': lowercase,
@@ -189,10 +198,10 @@ class LayoutFunctions:
         try:
             with open('special_mappings.json', 'r', encoding='utf-8') as file:
                 encode_special_mappings = json.load(file)
-            
+
             # Create the decode mapping by reversing the encode mapping
             decode_special_mappings = {v: k for k, v in encode_special_mappings.items()}
-            
+
             return encode_special_mappings, decode_special_mappings
 
         except FileNotFoundError:
@@ -212,6 +221,7 @@ class ConsoleInterface:
         self.layout_functions = layouts
         self.valid_layouts = {key for key, _ in self.layout_functions.list_layouts()}
         self.config = config
+        self.startup = Startup()
 
     def main(self):
         """
@@ -232,8 +242,8 @@ class ConsoleInterface:
             'switch layout': self.handle_choose_layout,
             '4': self.handle_add_layout,
             'add layout': self.handle_add_layout,
-            '5': Startup.start_graphical,
-            'switch to gui': Startup.start_graphical,
+            '5': self.startup.start_graphical,
+            'switch to gui': self.startup.start_graphical,
             '6': self.handle_exit_program,
             'exit': self.handle_exit_program
         }
@@ -308,7 +318,7 @@ class ConsoleInterface:
 
         try:
             self.layout_functions.add_layout(key, name, lowercase, uppercase)
-            logging.info(f"Layout '{name}' added successfully.")
+            logging.info(f"Layout '{key}', '{name}' added successfully.")
         except ValueError as e:
             logging.error(str(e))
 
@@ -324,7 +334,7 @@ class ConsoleInterface:
         while True:
             row = input(f"Enter row {row_number} for {case_type}: ").strip()
             row_number += 1
-            
+
             if not row or row_number > max_row_num:
                 row_number = 1
                 break
@@ -339,24 +349,24 @@ class ConsoleInterface:
             '2': self.get_input_from_file,
             'file': self.get_input_from_file
         }
-        
+
         if skip_input_type:
             return self.get_input_from_text(operation)
         else:
             choice_type = input(f"\nWhat would you like to {operation}\n"
                                  " 1 - text\n"
                                  " 2 - file\n").strip().lower()
-            
+
             action = actions.get(choice_type)
             if action:
                 return action(operation)
             else:
                 logging.info("Invalid input. Please try again.")
                 return self.get_input_text(operation)
-        
+
     def get_input_from_text(self, operation):
         return input(f"\nEnter the text to {operation}:\n")
-    
+
     def get_input_from_file(self, operation):
         file_path = input(f"\nEnter the file to {operation}: \n")
         try:
@@ -366,7 +376,7 @@ class ConsoleInterface:
             logging.error("File not found. Please try again.")
         except Exception:
             logging.error("Error reading file", exc_info=True)
- 
+
 
 class MainWindow(QWidget):
     def __init__(self, config, layouts):
@@ -377,7 +387,6 @@ class MainWindow(QWidget):
         self.config = config
         self.apply_theme()
         self.init_UI()
-        self.set_window_size()
         self.handle_reset()
 
     def init_UI(self):
@@ -469,23 +478,25 @@ class MainWindow(QWidget):
         msg_box.exec_()
 
     def apply_theme(self):
+        width = self.config.getint('GUIConfig', 'window_width', fallback=500)
+        height = self.config.getint('GUIConfig', 'window_height', fallback=400)
         theme = self.config.get('GUIConfig', 'theme', fallback='light')
+        themes = {
+            'dark': "background-color: #2E2E2E; color: white;",
+            'light': "background-color: white; color: black;"
+        }
 
-        if theme == 'dark':
-            self.setStyleSheet("background-color: #2E2E2E; color: white;")
-        elif theme == 'light':
-            self.setStyleSheet("background-color: white; color: black;")
-    
-    def set_window_size(self):
-        width = self.config.getint('GUIConfig', 'window_width', fallback=800)
-        height = self.config.getint('GUIConfig', 'window_height', fallback=600)
         self.resize(width, height)
+        self.setStyleSheet(themes.get(theme))
+
 
 class Startup:
-    def __init__(self, config):
+    def __init__(self):
         self.layout_functions = LayoutFunctions()
-        self.config = config
+        self.config = ConfigParser()
+        self.config.read('config.ini')
         self.setup_logging()
+        self.validate_config()
 
     def setup_logging(self):
         log_level_str = self.config.get('GeneralConfig', 'logging_level', fallback='INFO').upper()
@@ -574,11 +585,4 @@ class Startup:
 
 
 if __name__ == "__main__":
-    # Load config
-    config = ConfigParser()
-    config.read('config.ini')
-
-    startup = Startup(config)
-    startup.validate_config()
-
-    startup.main()
+    Startup().main()
