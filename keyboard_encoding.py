@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox,
 )
+from PyQt5.QtGui import QIcon
 
 
 class EncodeDecode:
@@ -29,11 +30,7 @@ class EncodeDecode:
         if layout_key in self.encoding_dict:
             return  # Use cached dictionaries
 
-        try:
-            self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
-        except ValueError as e:
-            logging.error(str(e))
-            raise ValueError(str(e))
+        self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
 
         # Initialize encoding and decoding dictionaries
         for prefix, layout in (('0', self.layout_lowercase), ('1', self.layout_uppercase)):
@@ -69,11 +66,14 @@ class EncodeDecode:
                     self.initialize_layout_dictionaries(key)
                     encoded_text.append(key)
                     i = end_marker + 1
-            encoded_text.append(
-                self.encoding_dict.get(char) or 
-                self.encode_special_mappings.get(char) or 
-                '�'
-            )
+            elif char in self.encoding_dict or self.encode_special_mappings:
+                encoded_text.append(
+                    self.encoding_dict.get(char) or 
+                    self.encode_special_mappings.get(char)
+                )
+            else:
+                logging.warning(f"Unknown character encountered: {char}")
+                encoded_text.append('�')
 
             i += 1
         return ' '.join(encoded_text)
@@ -96,12 +96,14 @@ class EncodeDecode:
             if code in dict(self.layout_functions.list_layouts()):
                 self.initialize_layout_dictionaries(code)
                 decoded_text.append(f"~{code}~")
-            else:
+            elif code in self.decoding_dict or self.decode_special_mappings:
                 decoded_text.append(
                     self.decoding_dict.get(code) or 
-                    self.decode_special_mappings.get(code) or 
-                    '�'
+                    self.decode_special_mappings.get(code)
                 )
+            else:
+                logging.warning(f"Unknown code encountered: {code}")
+                decoded_text.append('�')
         return ''.join(decoded_text)
 
 
@@ -391,6 +393,7 @@ class MainWindow(QWidget):
 
     def init_UI(self):
         self.setWindowTitle('Keyboard Encoding')
+        self.setWindowIcon(QIcon('./icon.svg'))
 
         # Layouts
         main_layout = QVBoxLayout()
@@ -475,7 +478,17 @@ class MainWindow(QWidget):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
+        msg_box.addButton("Copy", QMessageBox.ActionRole)  # Add the Copy button
+        msg_box.addButton(QMessageBox.Ok)  # Add the OK button
+
+        msg_box.buttonClicked.connect(lambda button: self.copy_to_clipboard(button, message))
+      
         msg_box.exec_()
+
+    def copy_to_clipboard(self, button, message):
+        if button.text() == "Copy":
+            clipboard = QApplication.clipboard()
+            clipboard.setText(message)
 
     def apply_theme(self):
         width = self.config.getint('GUIConfig', 'window_width', fallback=500)
@@ -557,7 +570,8 @@ class Startup:
         print("Usage:\n"
                 " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
                 " -c, --console:   Run the application in console mode.\n"
-                " -h, --help:      Display this help message.")
+                " -h, --help:      Display this help message."
+        )
 
     def main(self):
         """
