@@ -51,17 +51,17 @@ To start the program, run one of the following commands:
 
 To start the program in GUI mode:
 ``` sh
-python keyboard_encoding.py -g
+python main.py -g
 ```
 
 To start the program in console mode:
 ``` sh
-python keyboard_encoding.py -c
+python main.py -c
 ```
 
 To get information on how to run the program:
 ``` sh
-python keyboard_encoding.py -h
+python main.py -h
 ```
 
 ## Main Menu

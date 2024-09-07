@@ -1,239 +1,16 @@
-import json
-import logging
 import sys
-import unicodedata
+import logging
+
 from configparser import ConfigParser
-from typing import List, Tuple, Dict, Union
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox,
-)
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
+    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox, QApplication
+)
+from typing import List, Union
 
-
-class EncodeDecode:
-    def __init__(self, layouts: 'LayoutFunctions') -> None:
-        """
-        Initialize the EncodeDecode class.
-
-        Args:
-            layouts (LayoutFunctions): An instance of the LayoutFunctions class.
-        """
-        self.layout_functions = LayoutFunctions()
-        self.layouts = layouts
-        self.encode_special_mappings, self.decode_special_mappings = self.layouts.get_special_mappings()
-        self.encoding_dict: Dict[str, str] = {}
-        self.decoding_dict: Dict[str, str] = {}
-        self.layout_lowercase: List[List[str]] = []
-        self.layout_uppercase: List[List[str]] = []
-
-    def initialize_layout_dictionaries(self, layout_key: str) -> None:
-        """
-        Creates dictionaries used to encode and decode for both lowercase and uppercase layouts.
-
-        Args:
-            layout_key (str): The short name for the used layout.
-        """
-        if layout_key in self.encoding_dict:
-            return  # Use cached dictionaries
-
-        self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
-
-        # Initialize encoding and decoding dictionaries
-        for prefix, layout in (('0', self.layout_lowercase), ('1', self.layout_uppercase)):
-            for row_idx, row in enumerate(layout):
-                for col_idx, char in enumerate(row):
-                    if char.strip():  # Ignore empty spaces in the layout
-                        code = f"{prefix}{row_idx+1:01}x{col_idx+1:02}"
-                        self.encoding_dict[char] = code
-                        self.decoding_dict[code] = char
-
-    def encode_text(self, text: str) -> str:
-        """
-        Encodes the given text using the encoding dictionary.
-
-        Args:
-            text (str): The text to encode.
-
-        Returns:
-            str: The encoded text.
-        """
-        encoded_text: List[str] = []
-        normalized_text = unicodedata.normalize('NFD', text)  # Normalize the text using NFD
-
-        i = 0
-        while i < len(normalized_text):
-            char = normalized_text[i]
-
-            # Check if the code matches a layout key to switch layouts
-            if char == '~':
-                end_marker = normalized_text.find('~', i + 1)
-                key = normalized_text[i + 1:end_marker]
-                if key in dict(self.layout_functions.list_layouts()):
-                    self.initialize_layout_dictionaries(key)
-                    encoded_text.append(key)
-                    i = end_marker + 1
-            elif char in self.encoding_dict or self.encode_special_mappings:
-                encoded_text.append(
-                    self.encoding_dict.get(char) or 
-                    self.encode_special_mappings.get(char)
-                )
-            else:
-                logging.warning(f"Unknown character encountered: {char}")
-                encoded_text.append('�')
-
-            i += 1
-        return ' '.join(encoded_text)
-
-    def decode_text(self, encoded_text: str) -> str:
-        """
-        Decodes the given text using the decoding dictionary.
-
-        Args:
-            encoded_text (str): The text to decode.
-
-        Returns:
-            str: The decoded text.
-        """
-        decoded_text: List[str] = []
-        codes = encoded_text.split()
-
-        for code in codes:
-            # Check if the code matches a layout key to switch layouts
-            if code in dict(self.layout_functions.list_layouts()):
-                self.initialize_layout_dictionaries(code)
-                decoded_text.append(f"~{code}~")
-            elif code in self.decoding_dict or self.decode_special_mappings:
-                decoded_text.append(
-                    self.decoding_dict.get(code) or 
-                    self.decode_special_mappings.get(code)
-                )
-            else:
-                logging.warning(f"Unknown code encountered: {code}")
-                decoded_text.append('�')
-        return ''.join(decoded_text)
-
-
-class LayoutFunctions:
-    def __init__(self) -> None:
-        """
-        Initialize the LayoutFunctions class.
-        """
-        self.layouts = self.load_layouts()
-
-    def load_layouts(self) -> Dict[str, Dict[str, Union[str, List[List[str]]]]]:
-        """
-        Load layouts from the JSON file.
-
-        Returns:
-            dict: The loaded layouts.
-        """
-        try:
-            with open('layouts.json', 'r', encoding='utf-8') as file:
-                layouts = json.load(file)
-            return layouts
-        except FileNotFoundError:
-            logging.error("layouts.json file not found.")
-            return {}
-        except json.JSONDecodeError:
-            logging.error("Error decoding layouts.json file.")
-            return {}
-
-    def get_layout(self, key: str) -> Tuple[List[List[str]], List[List[str]]]:
-        """
-        Retrieve the layout (both lowercase and uppercase) by its key.
-
-        Args:
-            key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
-
-        Returns:
-            tuple: A tuple containing two lists, the lowercase and uppercase layouts.
-
-        Raises:
-            ValueError: If the layout with the specified key is not found.
-        """
-        layout = self.layouts.get(key)
-        if layout:
-            return layout['lowercase'], layout['uppercase']
-        raise ValueError(f"Layout with key '{key}' not found")
-
-    def get_layout_name(self, key: str) -> str:
-        """
-        Retrieve the name by its key.
-
-        Args:
-            key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
-
-        Returns:
-            str: The human-readable name of the layout.
-
-        Raises:
-            ValueError: If the layout with the specified key is not found.
-        """
-        layout = self.layouts.get(key)
-        if layout:
-            return layout['name']
-        raise ValueError(f"Layout with key '{key}' not found")
-
-    def list_layouts(self) -> List[Tuple[str, str]]:
-        """
-        List all available keyboard layouts.
-
-        Returns:
-            list: A list of tuples containing the key and name of all layouts.
-        """
-        return [(key, layout['name']) for key, layout in self.layouts.items()]
-
-    def add_layout(self, key: str, name: str, lowercase: List[List[str]], uppercase: List[List[str]]) -> None:
-        """
-        Add a new keyboard layout.
-
-        Args:
-            key (str): The key for the new layout (e.g., 'ck' for Colemak).
-            name (str): The human-readable name of the layout.
-            lowercase (list): A list of lists representing the lowercase keys.
-            uppercase (list): A list of lists representing the uppercase keys.
-
-        Raises:
-            ValueError: If a layout with the given key already exists.
-        """
-        if key in self.layouts:
-            raise ValueError(f"Layout with key '{key}' already exists")
-
-        self.layouts[key] = {
-            'name': name,
-            'lowercase': lowercase,
-            'uppercase': uppercase
-        }
-
-        with open('layouts.json', 'w', encoding='utf-8') as file:
-            json.dump(self.layouts, file, indent=4)
-
-    def get_special_mappings(self) -> Tuple[Dict[str, str], Dict[str, str]]:
-        """
-        Retrieve the special character mappings from a JSON file.
-
-        Returns:
-            tuple: A tuple containing two dictionaries, the encode and decode special mappings.
-        """
-        try:
-            with open('special_mappings.json', 'r', encoding='utf-8') as file:
-                encode_special_mappings = json.load(file)
-
-            # Create the decode mapping by reversing the encode mapping
-            decode_special_mappings = {v: k for k, v in encode_special_mappings.items()}
-
-            return encode_special_mappings, decode_special_mappings
-
-        except FileNotFoundError:
-            logging.error(f"Special mappings file not found.")
-            return {}, {}
-        except json.JSONDecodeError:
-            logging.error(f"Error decoding the special mappings file.")
-            return {}, {}
-        except Exception as e:
-            logging.error(f"An unexpected error occurred: {e}")
-            return {}, {}
+from encode_decode import EncodeDecode
+from layout_functions import LayoutFunctions
 
 
 class ConsoleInterface:
@@ -255,13 +32,13 @@ class ConsoleInterface:
         """
         Runs the console interface for encoding and decoding text.
         """
-        default_layout = self.config.get('GeneralConfig', 'default_layout', fallback=None)
+        default_layout = self.config.get('GeneralConfig', 'default_layout')
         if default_layout is not None:
             self.encoder_decoder.initialize_layout_dictionaries(default_layout)
         else:
             self.handle_choose_layout()
 
-        actions = {
+        actions: dict[str, str] = {
             '1': self.handle_encode,
             'encode': self.handle_encode,
             '2': self.handle_decode,
@@ -277,7 +54,7 @@ class ConsoleInterface:
         }
 
         while True:
-            choice = input("\nWhat would you like to do?\n"
+            choice: Union[str, int] = input("\nWhat would you like to do?\n"
                            " 1 - encode\n"
                            " 2 - decode\n"
                            " 3 - switch layout\n"
@@ -285,7 +62,7 @@ class ConsoleInterface:
                            " 5 - switch to GUI\n"
                            " 6 - exit\n").strip().lower()
 
-            action = actions.get(choice)
+            action: str = actions.get(choice)
             if action:
                 action()
             else:
@@ -295,14 +72,14 @@ class ConsoleInterface:
         """
         Handle the encoding operation.
         """
-        text_to_encode = self.get_input_text("encode")
+        text_to_encode: str = self.get_input_text("encode")
 
         if not text_to_encode:
             logging.error("No text provided for encoding.")
             return
 
         try:
-            encoded_text = self.encoder_decoder.encode_text(text_to_encode)
+            encoded_text: str = self.encoder_decoder.encode_text(text_to_encode)
             print("\nEncoded Text:\n", encoded_text)
         except Exception as e:
             logging.error("Error during encoding", exc_info=True)
@@ -312,14 +89,14 @@ class ConsoleInterface:
         """
         Handle the decoding operation.
         """
-        text_to_decode = self.get_input_text("decode")
+        text_to_decode: str = self.get_input_text("decode")
 
         if not text_to_decode:
             logging.error("No text provided for decoding.")
             return
 
         try:
-            decoded_text = self.encoder_decoder.decode_text(text_to_decode)
+            decoded_text: str = self.encoder_decoder.decode_text(text_to_decode)
             print("\nDecoded Text:\n", decoded_text)
         except Exception as e:
             logging.error("Error during decoding", exc_info=True)
@@ -329,10 +106,10 @@ class ConsoleInterface:
         """
         Handle the layout selection operation.
         """
-        retry_count: int = self.config.getint('ConsoleConfig', 'prompt_for_retries', fallback=3)
+        retry_count: int = self.config.getint('ConsoleConfig', 'prompt_for_retries')
 
         while retry_count > 0:
-            layout = input("\nInsert Layout:\n").strip().lower()
+            layout: str = input("\nInsert Layout:\n").strip().lower()
 
             if layout in self.valid_layouts:
                 self.encoder_decoder.initialize_layout_dictionaries(layout)
@@ -350,11 +127,11 @@ class ConsoleInterface:
         """
         Handle the operation to add a new layout.
         """
-        key = input("\nLayout key:  ").strip().lower()
-        name = input("Layout name: ").strip()
+        key: str = input("\nLayout key:  ").strip().lower()
+        name: str = input("Layout name: ").strip()
 
-        lowercase = self.get_layout_input("lowercase")
-        uppercase = self.get_layout_input("uppercase")
+        lowercase: List[List[str]] = self.get_layout_input("lowercase")
+        uppercase: List[List[str]] = self.get_layout_input("uppercase")
 
         try:
             self.layout_functions.add_layout(key, name, lowercase, uppercase)
@@ -379,17 +156,12 @@ class ConsoleInterface:
         Returns:
             list: A list representing the layout.
         """
-        max_row_num: int = self.config.getint('ConsoleConfig', 'max_row_num', fallback=4)
+        max_row_num: int = self.config.getint('ConsoleConfig', 'max_row_num')
         layout: List[List[str]] = []
-        row_number: int = 1
 
-        while True:
-            row = input(f"Enter row {row_number} for {case_type}: ").strip()
-            row_number += 1
+        for row_number in range(max_row_num):
+            row = input(f"Enter row {row_number + 1} for {case_type}: ").strip()
 
-            if not row or row_number > max_row_num:
-                row_number = 1
-                break
             layout.append(list(row))
         return layout
 
@@ -403,8 +175,8 @@ class ConsoleInterface:
         Returns:
             str: The input text.
         """
-        skip_input_type: bool = self.config.getboolean('ConsoleConfig', 'skip_input_type', fallback=False)
-        actions = {
+        skip_input_type: bool = self.config.getboolean('ConsoleConfig', 'skip_input_type')
+        actions: dict[str, str] = {
             '1': self.get_input_from_text,
             'text': self.get_input_from_text,
             '2': self.get_input_from_file,
@@ -414,11 +186,11 @@ class ConsoleInterface:
         if skip_input_type:
             return self.get_input_from_text(operation)
         else:
-            choice_type = input(f"\nWhat would you like to {operation}\n"
+            choice_type: Union[str, int] = input(f"\nWhat would you like to {operation}\n"
                                  " 1 - text\n"
                                  " 2 - file\n").strip().lower()
 
-            action = actions.get(choice_type)
+            action: str = actions.get(choice_type)
             if action:
                 return action(operation)
             else:
@@ -447,7 +219,7 @@ class ConsoleInterface:
         Returns:
             str: The content of the file as a string.
         """
-        file_path = input(f"\nEnter the file to {operation}: \n")
+        file_path: str = input(f"\nEnter the file to {operation}: \n")
         try:
             with open(file_path, 'r') as file:
                 return file.read()
@@ -470,7 +242,7 @@ class MainWindow(QWidget):
         super().__init__()
         self.encoder_decoder = EncodeDecode(layouts)
         self.layout_functions = layouts
-        self.default_layout: str = self.layout_functions.get_layout_name(config.get('GeneralConfig', 'default_layout', fallback='qy'))
+        self.default_layout: str = self.layout_functions.get_layout_name(config.get('GeneralConfig', 'default_layout'))
         self.config = config
         self.apply_theme()
         self.init_UI()
@@ -489,7 +261,7 @@ class MainWindow(QWidget):
         radio_layout = QHBoxLayout()
         button_layout = QHBoxLayout()
 
-        # Layout dropdown
+        # Dropdown
         self.dropdown = QComboBox()
         for key, name in self.encoder_decoder.layouts.list_layouts():
             self.dropdown.addItem(name, key)
@@ -535,8 +307,8 @@ class MainWindow(QWidget):
         """
         Handle the submission of text for encoding or decoding.
         """
-        layout_key = self.dropdown.currentData()
-        input_text = self.textbox.toPlainText()
+        layout_key: str = self.dropdown.currentData()
+        input_text: str = self.textbox.toPlainText()
 
         if not input_text.strip():
             self.show_message("Error", "Input text cannot be empty.")
@@ -546,9 +318,9 @@ class MainWindow(QWidget):
             self.encoder_decoder.initialize_layout_dictionaries(layout_key)
 
             if self.encode_radio.isChecked():
-                output_text = self.encoder_decoder.encode_text(input_text)
+                output_text: str = self.encoder_decoder.encode_text(input_text)
             elif self.decode_radio.isChecked():
-                output_text = self.encoder_decoder.decode_text(input_text)
+                output_text: str = self.encoder_decoder.decode_text(input_text)
             else:
                 self.show_message("Error", "Please select an operation (encode/decode).")
                 return
@@ -562,7 +334,7 @@ class MainWindow(QWidget):
         """
         Handle the reset operation of the UI.
         """
-        default_operation = self.config.get('GUIConfig', 'default_operation', fallback='encode')
+        default_operation: str = self.config.get('GUIConfig', 'default_operation', fallback='encode')
         self.encode_radio.setChecked(default_operation == 'encode')
         self.decode_radio.setChecked(default_operation == 'decode')
         self.dropdown.setCurrentText(self.default_layout)
@@ -579,14 +351,14 @@ class MainWindow(QWidget):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
-        msg_box.addButton("Copy", QMessageBox.ActionRole)  # Add the Copy button
-        msg_box.addButton(QMessageBox.Close)  # Add the OK button
+        msg_box.addButton("Copy", QMessageBox.ActionRole)  
+        msg_box.addButton(QMessageBox.Close)
 
         msg_box.buttonClicked.connect(lambda button: self.copy_to_clipboard(button, message))
       
         msg_box.exec_()
 
-    def copy_to_clipboard(self, button: 'QAbstractButton', message: str) -> None:
+    def copy_to_clipboard(self, button, message: str) -> None:
         """
         Copy the provided message to the clipboard if the "Copy" button is clicked.
 
@@ -602,10 +374,10 @@ class MainWindow(QWidget):
         """
         Apply the selected theme to the UI.
         """
-        width: int = self.config.getint('GUIConfig', 'window_width', fallback=500)
-        height: int = self.config.getint('GUIConfig', 'window_height', fallback=400)
+        width: int = self.config.getint('GUIConfig', 'window_width')
+        height: int = self.config.getint('GUIConfig', 'window_height')
         theme: str = self.config.get('GUIConfig', 'theme', fallback='light')
-        themes = {
+        themes: dict[str, str] = {
             'dark': "background-color: #2E2E2E; color: white;",
             'light': "background-color: white; color: black;"
         }
@@ -645,14 +417,16 @@ class Startup:
             logging.info("Invalid layout in config. Setting to QWERTY.")
 
         # Validate ConsoleConfig max_row_num
-        max_row_num: int = self.config.getint('ConsoleConfig', 'max_row_num', fallback=4)
-        if not isinstance(max_row_num, int):
+        try:
+            self.config.getint('ConsoleConfig', 'max_row_num', fallback=4)
+        except ValueError:
             self.config.set('ConsoleConfig', 'max_row_num', '4')
             logging.info("Invalid number of rows provided in config. Setting to default 4.")
 
         # Validate ConsoleConfig skip_input_type
-        skip_input_type: bool = self.config.getboolean('ConsoleConfig', 'skip_input_type', fallback=False)
-        if not isinstance(skip_input_type, bool):
+        try:
+            self.config.getboolean('ConsoleConfig', 'skip_input_type', fallback=False)
+        except ValueError:
             self.config.set('ConsoleConfig', 'skip_input_type', 'False')
             logging.info("Invalid argument for skip_input_type. Setting to default False.")
 
@@ -669,14 +443,16 @@ class Startup:
             logging.info("Invalid argument for theme. Setting to Light")
 
         # Validate GUIConfig window_width
-        window_width: int = self.config.getint('GUIConfig', 'window_width', fallback='400')
-        if not isinstance(window_width, int):
-            self.config.set('GUIConfig', 'window_width', '400')
-            logging.info("Invalid argument for window_width. Setting to 400")
+        try:
+            self.config.getint('GUIConfig', 'window_width', fallback='400')
+        except ValueError:
+            self.config.set('GUIConfig', 'window_width', '500')
+            logging.info("Invalid argument for window_width. Setting to 500")
 
         # Validate GUIConfig window_height
-        window_height: int = self.config.getint('GUIConfig', 'window_height', fallback='400')
-        if not isinstance(window_height, int):
+        try:
+            self.config.getint('GUIConfig', 'window_height', fallback=400)
+        except ValueError:
             self.config.set('GUIConfig', 'window_height', '400')
             logging.info("Invalid argument for window_height. Setting to 400")
 
@@ -694,9 +470,9 @@ class Startup:
         Display usage help for the command-line interface.
         """
         print("Usage:\n"
-                " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
-                " -c, --console:   Run the application in console mode.\n"
-                " -h, --help:      Display this help message."
+              " -g, --graphical: Launch the application in graphical user interface (GUI) mode.\n"
+              " -c, --console:   Run the application in console mode.\n"
+              " -h, --help:      Display this help message."
         )
 
     def main(self) -> None:
