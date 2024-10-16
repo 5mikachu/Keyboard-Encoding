@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List, Tuple, Dict, Union
 
 
 class LayoutFunctions:
@@ -10,12 +9,12 @@ class LayoutFunctions:
         """
         self.layouts = self.load_layouts()
 
-    def load_layouts(self) -> Dict[str, Dict[str, Union[str, List[List[str]]]]]:
+    def load_layouts(self) -> dict[str, dict[str, str | list[list[str]]]]:
         """
         Load layouts from the JSON file.
 
         Returns:
-            dict: The loaded layouts.
+            loaded_layouts (dict): The loaded layouts.
         """
         try:
             with open('layouts.json', 'r', encoding='utf-8') as file:
@@ -28,7 +27,7 @@ class LayoutFunctions:
             logging.error("Error decoding layouts.json file.")
             return {}
 
-    def get_layout(self, key: str) -> Tuple[List[List[str]], List[List[str]]]:
+    def get_layout(self, key: str) -> tuple[list[list[str]], list[list[str]]]:
         """
         Retrieve the layout (both lowercase and uppercase) by its key.
 
@@ -36,10 +35,7 @@ class LayoutFunctions:
             key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
 
         Returns:
-            tuple: A tuple containing two lists, the lowercase and uppercase layouts.
-
-        Raises:
-            ValueError: If the layout with the specified key is not found.
+            layouts (tuple): A tuple containing two lists, the lowercase and uppercase layouts.
         """
         layout = self.layouts.get(key)
         if layout:
@@ -54,17 +50,14 @@ class LayoutFunctions:
             key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
 
         Returns:
-            str: The human-readable name of the layout.
-
-        Raises:
-            ValueError: If the layout with the specified key is not found.
+            layout_name (str): The human-readable name of the layout.
         """
         layout = self.layouts.get(key)
         if layout:
             return layout['name']
         raise ValueError(f"Layout with key '{key}' not found")
 
-    def list_layouts(self) -> List[Tuple[str, str]]:
+    def list_layouts(self) -> list[tuple[str, str]]:
         """
         List all available keyboard layouts.
 
@@ -73,7 +66,7 @@ class LayoutFunctions:
         """
         return [(key, layout['name']) for key, layout in self.layouts.items()]
 
-    def add_layout(self, key: str, name: str, lowercase: List[List[str]], uppercase: List[List[str]]) -> None:
+    def add_layout(self, key: str, name: str, lowercase: list[list[str]], uppercase: list[list[str]]) -> None:
         """
         Add a new keyboard layout.
 
@@ -82,9 +75,6 @@ class LayoutFunctions:
             name (str): The human-readable name of the layout.
             lowercase (list): A list of lists representing the lowercase keys.
             uppercase (list): A list of lists representing the uppercase keys.
-
-        Raises:
-            ValueError: If a layout with the given key already exists.
         """
         if key in self.layouts:
             raise ValueError(f"Layout with key '{key}' already exists")
@@ -98,7 +88,7 @@ class LayoutFunctions:
         with open('layouts.json', 'w', encoding='utf-8') as file:
             json.dump(self.layouts, file, indent=4)
 
-    def get_special_mappings(self) -> Tuple[Dict[str, str], Dict[str, str]]:
+    def get_special_mappings(self) -> tuple[dict[str, str], dict[str, str]]:
         """
         Retrieve the special character mappings from a JSON file.
 
@@ -107,9 +97,9 @@ class LayoutFunctions:
         """
         try:
             with open('special_mappings.json', 'r', encoding='utf-8') as file:
-                encode_special_mappings: Dict[str, str] = json.load(file)
+                encode_special_mappings: dict[str, str] = json.load(file)
             # Create the decode mapping by reversing the encode mapping
-            decode_special_mappings: Dict[str, str] = {v: k for k, v in encode_special_mappings.items()}
+            decode_special_mappings: dict[str, str] = {v: k for k, v in encode_special_mappings.items()}
             return encode_special_mappings, decode_special_mappings
         except FileNotFoundError:
             logging.error(f"Special mappings file not found.")

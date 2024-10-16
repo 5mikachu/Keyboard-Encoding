@@ -1,6 +1,5 @@
 import unicodedata
 import logging
-from typing import List, Dict
 from layout_functions import LayoutFunctions
 
 
@@ -15,10 +14,10 @@ class EncodeDecode:
         self.layout_functions = LayoutFunctions()
         self.layouts = layouts
         self.encode_special_mappings, self.decode_special_mappings = self.layouts.get_special_mappings()
-        self.encoding_dict: Dict[str, str] = {}
-        self.decoding_dict: Dict[str, str] = {}
-        self.layout_lowercase: List[List[str]] = []
-        self.layout_uppercase: List[List[str]] = []
+        self.encoding_dict: dict[str, str] = {}
+        self.decoding_dict: dict[str, str] = {}
+        self.layout_lowercase: list[list[str]] = []
+        self.layout_uppercase: list[list[str]] = []
 
     def initialize_layout_dictionaries(self, layout_key: str) -> None:
         """
@@ -32,11 +31,10 @@ class EncodeDecode:
 
         self.layout_lowercase, self.layout_uppercase = self.layouts.get_layout(layout_key)
 
-        # Initialize encoding and decoding dictionaries
         for prefix, layout in (('0', self.layout_lowercase), ('1', self.layout_uppercase)):
             for row_idx, row in enumerate(layout):
                 for col_idx, char in enumerate(row):
-                    if char.strip():  # Ignore empty spaces in the layout
+                    if char.strip():
                         code = f"{prefix}{row_idx+1:01}x{col_idx+1:02}"
                         self.encoding_dict[char] = code
                         self.decoding_dict[code] = char
@@ -49,15 +47,14 @@ class EncodeDecode:
             text (str): The text to encode.
 
         Returns:
-            str: The encoded text.
+            encoded_text (str): The encoded text.
         """
-        encoded_text: List[str] = []
-        normalized_text = unicodedata.normalize('NFD', text)  # Normalize the text using NFD
+        encoded_text: list[str] = []
+        normalized_text = unicodedata.normalize('NFD', text)
 
         for i in range(len(normalized_text)):
             char: str = normalized_text[i]
 
-            # Check if the code matches a layout key to switch layouts
             if char == '~':
                 end_marker: int = normalized_text.find('~', i + 1)
                 key: str = normalized_text[i + 1:end_marker]
@@ -83,13 +80,12 @@ class EncodeDecode:
             encoded_text (str): The text to decode.
 
         Returns:
-            str: The decoded text.
+            decoded_text (str): The decoded text.
         """
-        decoded_text: List[str] = []
+        decoded_text: list[str] = []
         codes: str = encoded_text.split()
 
         for code in codes:
-            # Check if the code matches a layout key to switch layouts
             if code in dict(self.layout_functions.list_layouts()):
                 self.initialize_layout_dictionaries(code)
                 decoded_text.append(f"~{code}~")

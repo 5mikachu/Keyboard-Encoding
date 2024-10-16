@@ -1,17 +1,13 @@
 import sys
 import logging
-
 from configparser import ConfigParser
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QRadioButton, QTextEdit, QPushButton, QButtonGroup, QMessageBox, QApplication
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QRadioButton,
+    QTextEdit, QPushButton, QButtonGroup, QMessageBox, QApplication
 )
-from typing import List, Union
-
 from encode_decode import EncodeDecode
 from layout_functions import LayoutFunctions
-
 
 class ConsoleInterface:
     def __init__(self, config: ConfigParser, layouts: LayoutFunctions) -> None:
@@ -54,7 +50,7 @@ class ConsoleInterface:
         }
 
         while True:
-            choice: Union[str, int] = input("\nWhat would you like to do?\n"
+            choice: str | int = input("\nWhat would you like to do?\n"
                            " 1 - encode\n"
                            " 2 - decode\n"
                            " 3 - switch layout\n"
@@ -130,8 +126,8 @@ class ConsoleInterface:
         key: str = input("\nLayout key:  ").strip().lower()
         name: str = input("Layout name: ").strip()
 
-        lowercase: List[List[str]] = self.get_layout_input("lowercase")
-        uppercase: List[List[str]] = self.get_layout_input("uppercase")
+        lowercase: list[list[str]] = self.get_layout_input("lowercase")
+        uppercase: list[list[str]] = self.get_layout_input("uppercase")
 
         try:
             self.layout_functions.add_layout(key, name, lowercase, uppercase)
@@ -146,7 +142,7 @@ class ConsoleInterface:
         print("Exiting the program.")
         sys.exit(0)
 
-    def get_layout_input(self, case_type: str) -> List[List[str]]:
+    def get_layout_input(self, case_type: str) -> list[list[str]]:
         """
         Get layout input from the user.
 
@@ -154,10 +150,10 @@ class ConsoleInterface:
             case_type (str): Either 'lowercase' or 'uppercase'.
 
         Returns:
-            list: A list representing the layout.
+            layout (list): A list representing the layout.
         """
         max_row_num: int = self.config.getint('ConsoleConfig', 'max_row_num')
-        layout: List[List[str]] = []
+        layout: list[list[str]] = []
 
         for row_number in range(max_row_num):
             row = input(f"Enter row {row_number + 1} for {case_type}: ").strip()
@@ -173,7 +169,7 @@ class ConsoleInterface:
             operation (str): Either 'encode' or 'decode'.
 
         Returns:
-            str: The input text.
+            input_text (str): The input text.
         """
         skip_input_type: bool = self.config.getboolean('ConsoleConfig', 'skip_input_type')
         actions: dict[str, str] = {
@@ -186,7 +182,7 @@ class ConsoleInterface:
         if skip_input_type:
             return self.get_input_from_text(operation)
         else:
-            choice_type: Union[str, int] = input(f"\nWhat would you like to {operation}\n"
+            choice_type: str | int = input(f"\nWhat would you like to {operation}\n"
                                  " 1 - text\n"
                                  " 2 - file\n").strip().lower()
 
@@ -205,11 +201,11 @@ class ConsoleInterface:
             operation (str): Either 'encode' or 'decode'.
 
         Returns:
-            str: The input text.
+            input_text (str): The input text.
         """
         return input(f"\nEnter the text to {operation}:\n")
 
-    def get_input_from_file(self, operation: str) -> Union[str, None]:
+    def get_input_from_file(self, operation: str) -> str:
         """
         Get input from a file.
 
@@ -217,17 +213,14 @@ class ConsoleInterface:
             operation (str): Either 'encode' or 'decode'.
 
         Returns:
-            str: The content of the file as a string.
+            input_text (str | None): The content of the file as a string.
         """
-        file_path: str = input(f"\nEnter the file to {operation}: \n")
+        file_path: str = filedialog.askopenfilename(title=f'Select file to {operation}')
         try:
             with open(file_path, 'r') as file:
                 return file.read()
         except FileNotFoundError:
             logging.error("File not found. Please try again.")
-        except Exception:
-            logging.error("Error reading file", exc_info=True)
-        return None
 
 
 class MainWindow(QWidget):
@@ -312,29 +305,21 @@ class MainWindow(QWidget):
 
         if not input_text.strip():
             self.show_message("Error", "Input text cannot be empty.")
+            logging.info("Input text cannot be empty.")
             return
 
-        try:
-            self.encoder_decoder.initialize_layout_dictionaries(layout_key)
-
-            if self.encode_radio.isChecked():
-                output_text: str = self.encoder_decoder.encode_text(input_text)
-            elif self.decode_radio.isChecked():
-                output_text: str = self.encoder_decoder.decode_text(input_text)
-            else:
-                self.show_message("Error", "Please select an operation (encode/decode).")
-                return
-
-            self.show_message("Output", output_text)
-        except Exception as e:
-            logging.error("Error during processing", exc_info=True)
-            self.show_message("Error", f"An error occurred during processing: {e}")
+        operation = 'encode' if self.encode_radio.isChecked() else \
+                    'decode' if self.decode_radio.isChecked() else None
+        if not operation:
+            self.show_message("Error", "Please select an operation (encode/decode).")
+            logging.info("Please select an operation (encode/decode).")
+            return
 
     def handle_reset(self) -> None:
         """
         Handle the reset operation of the UI.
         """
-        default_operation: str = self.config.get('GUIConfig', 'default_operation', fallback='encode')
+        default_operation: str = self.config.get('GUIConfig', 'default_operation')
         self.encode_radio.setChecked(default_operation == 'encode')
         self.decode_radio.setChecked(default_operation == 'decode')
         self.dropdown.setCurrentText(self.default_layout)
@@ -351,11 +336,10 @@ class MainWindow(QWidget):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle(title)
         msg_box.setText(message)
-        msg_box.addButton("Copy", QMessageBox.ActionRole)  
+        msg_box.addButton("Copy", QMessageBox.ActionRole)
         msg_box.addButton(QMessageBox.Close)
 
         msg_box.buttonClicked.connect(lambda button: self.copy_to_clipboard(button, message))
-      
         msg_box.exec_()
 
     def copy_to_clipboard(self, button, message: str) -> None:
@@ -376,7 +360,7 @@ class MainWindow(QWidget):
         """
         width: int = self.config.getint('GUIConfig', 'window_width')
         height: int = self.config.getint('GUIConfig', 'window_height')
-        theme: str = self.config.get('GUIConfig', 'theme', fallback='light')
+        theme: str = self.config.get('GUIConfig', 'theme')
         themes: dict[str, str] = {
             'dark': "background-color: #2E2E2E; color: white;",
             'light': "background-color: white; color: black;"
@@ -494,8 +478,12 @@ class Startup:
                 action()
             else:
                 logging.info("Invalid argument. Use '-h' or '--help' for help.")
+                logging.info("Defaulting to console interface")
+                ConsoleInterface(self.config, self.layout_functions).main()
         except IndexError:
-            logging.error("No argument provided. Use '-h' or '--help' for usage information.")
+            logging.info("No argument provided. Use '-h' or '--help' for usage information.")
+            logging.info("Defaulting to console interface")
+            ConsoleInterface(self.config, self.layout_functions).main()
         except Exception:
             logging.error("Unexpected error occurred", exc_info=True)
 
