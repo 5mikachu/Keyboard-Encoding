@@ -1,0 +1,152 @@
+/* Root variables for color themes */
+:root {
+    --background: #f5f5f5;
+    --text-color: black;
+    --accent: #2980b9;
+    --accent-hover: #1f6aa5;
+    --loading-bar-bg: #ddd;
+    --splash-content-bg: rgba(255, 255, 255, 0.75);
+    --flex-item-bg: rgba(255, 255, 255, 0.75);
+    --hover-transition: 0.5s ease;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #121212;
+        --text-color: white;
+        --accent: #3498db;
+        --accent-hover: #1d577f;
+        --loading-bar-bg: #555;
+        --splash-content-bg: rgba(34, 34, 34, 0.75);
+        --flex-item-bg: #1e1e1e;
+    }
+}
+
+/* Base styling */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    background-color: var(--background);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header styling */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background);
+    padding: 0 2em;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.1);
+}
+
+header .logo {
+    font-size: 2em;
+    color: var(--text-color);
+}
+
+/* Main container and layout */
+.splash-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background);
+}
+
+.splash-content {
+    background: var(--splash-content-bg);
+    padding: 2em;
+    border-radius: 2em;
+    text-align: center;
+    max-width: 90%;
+    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.3);
+}
+
+/* Flexbox layout for action forms */
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1em;
+    margin: 1em;
+}
+
+/* Flexbox layout for encoding and decoding sections */
+.flex-container.side-by-side {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.flex-item {
+    flex: 1 1 45%;
+    padding: 1.5em;
+    background: var(--flex-item-bg);
+    border-radius: 1em;
+    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.2);
+}
+
+/* Form and button styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+/* Styles for Textarea */
+textarea {
+    width: 100%;
+    padding: 0.75em;
+    border: 0.1em solid #ddd;
+    border-radius: 0.25em;
+    resize: vertical;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+textarea::placeholder {
+    color: #999;
+}
+
+input, select {
+    padding: 0.75em;
+    border: 0.1em solid #ddd;
+    border-radius: 0.25em;
+    width: 100%;
+}
+
+button {
+    padding: 1em;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 2em;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color var(--hover-transition);
+}
+
+button:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Message display styling */
+#encodeResult, #decodeResult, #layoutResult {
+    margin-top: 1em;
+    font-size: 1em;
+}
+
+/* Responsive Adjustment for Smaller Screens */
+@media (max-width: 70em) {
+    .flex-item {
+        flex: 1 1 100%; /* Stack items vertically on small screens */
+    }
+}

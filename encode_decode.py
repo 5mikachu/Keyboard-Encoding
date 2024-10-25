@@ -1,5 +1,6 @@
-import unicodedata
 import logging
+import unicodedata
+
 from layout_functions import LayoutFunctions
 
 
@@ -8,7 +9,7 @@ class EncodeDecode:
         """
         Initialize the EncodeDecode class.
 
-        Args:
+        :args:
             layouts (LayoutFunctions): An instance of the LayoutFunctions class.
         """
         self.layout_functions = LayoutFunctions()
@@ -23,7 +24,7 @@ class EncodeDecode:
         """
         Creates dictionaries used to encode and decode for both lowercase and uppercase layouts.
 
-        Args:
+        :args:
             layout_key (str): The short name for the used layout.
         """
         if layout_key in self.encoding_dict:
@@ -35,7 +36,7 @@ class EncodeDecode:
             for row_idx, row in enumerate(layout):
                 for col_idx, char in enumerate(row):
                     if char.strip():
-                        code = f"{prefix}{row_idx+1:01}x{col_idx+1:02}"
+                        code = f"{prefix}{row_idx + 1:01}x{col_idx + 1:02}"
                         self.encoding_dict[char] = code
                         self.decoding_dict[code] = char
 
@@ -43,29 +44,27 @@ class EncodeDecode:
         """
         Encodes the given text using the encoding dictionary.
 
-        Args:
+        :args:
             text (str): The text to encode.
 
-        Returns:
+        :returns:
             encoded_text (str): The encoded text.
         """
-        encoded_text: list[str] = []
+        encoded_text = []
         normalized_text = unicodedata.normalize('NFD', text)
 
-        for i in range(len(normalized_text)):
-            char: str = normalized_text[i]
-
+        for i, char in enumerate(normalized_text):
+            # Switch layout if special character "~" is detected with a valid layout key
             if char == '~':
-                end_marker: int = normalized_text.find('~', i + 1)
-                key: str = normalized_text[i + 1:end_marker]
+                end_marker = normalized_text.find('~', i + 1)
+                key = normalized_text[i + 1:end_marker]
                 if key in dict(self.layout_functions.list_layouts()):
                     self.initialize_layout_dictionaries(key)
                     encoded_text.append(key)
             elif char in self.encoding_dict or self.encode_special_mappings:
-                encoded_text.append(
-                    self.encoding_dict.get(char) or 
-                    self.encode_special_mappings.get(char)
-                )
+                # Append encoded character or special mapping, falling back to "�" if missing
+                encoded_char = self.encoding_dict.get(char) or self.encode_special_mappings.get(char, '�')
+                encoded_text.append(encoded_char)
             else:
                 logging.warning(f"Unknown character encountered: {char}")
                 encoded_text.append('�')
@@ -76,25 +75,26 @@ class EncodeDecode:
         """
         Decodes the given text using the decoding dictionary.
 
-        Args:
+        :args:
             encoded_text (str): The text to decode.
 
-        Returns:
+        :returns:
             decoded_text (str): The decoded text.
         """
-        decoded_text: list[str] = []
-        codes: str = encoded_text.split()
+        decoded_text: list[str | None] = []
+        codes: list[str] = encoded_text.split()
 
         for code in codes:
+            # Switch layout if the code is a valid layout key
             if code in dict(self.layout_functions.list_layouts()):
                 self.initialize_layout_dictionaries(code)
                 decoded_text.append(f"~{code}~")
             elif code in self.decoding_dict or self.decode_special_mappings:
-                decoded_text.append(
-                    self.decoding_dict.get(code) or 
-                    self.decode_special_mappings.get(code)
-                )
+                # Append decoded character or special mapping, falling back to "�" if missing
+                decoded_char = self.decoding_dict.get(code) or self.decode_special_mappings.get(code, '�')
+                decoded_text.append(decoded_char)
             else:
                 logging.warning(f"Unknown code encountered: {code}")
                 decoded_text.append('�')
+
         return ''.join(decoded_text)

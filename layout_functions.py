@@ -9,11 +9,12 @@ class LayoutFunctions:
         """
         self.layouts = self.load_layouts()
 
-    def load_layouts(self) -> dict[str, dict[str, str | list[list[str]]]]:
+    @staticmethod
+    def load_layouts() -> dict[str, dict[str, str | list[list[str]]]]:
         """
         Load layouts from the JSON file.
 
-        Returns:
+        :returns:
             loaded_layouts (dict): The loaded layouts.
         """
         try:
@@ -31,10 +32,10 @@ class LayoutFunctions:
         """
         Retrieve the layout (both lowercase and uppercase) by its key.
 
-        Args:
+        :args:
             key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
 
-        Returns:
+        :returns:
             layouts (tuple): A tuple containing two lists, the lowercase and uppercase layouts.
         """
         layout = self.layouts.get(key)
@@ -46,10 +47,10 @@ class LayoutFunctions:
         """
         Retrieve the name by its key.
 
-        Args:
+        :args:
             key (str): The key for the desired layout (e.g., 'qy' for QWERTY).
 
-        Returns:
+        :returns:
             layout_name (str): The human-readable name of the layout.
         """
         layout = self.layouts.get(key)
@@ -61,7 +62,7 @@ class LayoutFunctions:
         """
         List all available keyboard layouts.
 
-        Returns:
+        :returns:
             list: A list of tuples containing the key and name of all layouts.
         """
         return [(key, layout['name']) for key, layout in self.layouts.items()]
@@ -70,7 +71,7 @@ class LayoutFunctions:
         """
         Add a new keyboard layout.
 
-        Args:
+        :args:
             key (str): The key for the new layout (e.g., 'ck' for Colemak).
             name (str): The human-readable name of the layout.
             lowercase (list): A list of lists representing the lowercase keys.
@@ -88,11 +89,12 @@ class LayoutFunctions:
         with open('layouts.json', 'w', encoding='utf-8') as file:
             json.dump(self.layouts, file, indent=4)
 
-    def get_special_mappings(self) -> tuple[dict[str, str], dict[str, str]]:
+    @staticmethod
+    def get_special_mappings() -> tuple[dict[str, str], dict[str, str]]:
         """
         Retrieve the special character mappings from a JSON file.
 
-        Returns:
+        :returns:
             tuple: A tuple containing two dictionaries, the encode and decode special mappings.
         """
         try:

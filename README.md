@@ -4,7 +4,8 @@ Are your text files to easy to read? Is plain-text to optimized for you?
 
 THEN THIS PROGRAM IS MADE FOR YOU!!
 
-This Python program allows you to 'encode' and 'decode' text using various keyboard layouts. It supports multiple layouts and can handle both individual text input and text files.
+This Python program allows you to 'encode' and 'decode' text using various keyboard layouts. It supports multiple
+layouts and can handle both individual text input and text files.
 
 # Features
 
@@ -23,18 +24,24 @@ _Unless stated otherwise, QWERTY was used._
 ## Encode and Decode
 
 **in**: The quick brown fox jumps over the lazy dog.!?  
-**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
+**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09
+04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01
+02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
 
-**in**: 04x06 02x03 00x02 02x03 04x08 00x00 02x03 04x06 02x05 02x04 02x03 02x10 02x09 00x03 02x05 04x08 00x00 14x01 02x09 02x03 00x09 04x08 00x00 03x04 03x01 04x03 00x13 03x01 03x03 02x03 04x08 00x00 13x02 02x03 04x06 00x04 02x09 02x04 04x08 00x00 03x06 03x01 00x02 04x03 00x0D 02x03 03x08  
+**in**: 04x06 02x03 00x02 02x03 04x08 00x00 02x03 04x06 02x05 02x04 02x03 02x10 02x09 00x03 02x05 04x08 00x00 14x01
+02x09 02x03 00x09 04x08 00x00 03x04 03x01 04x03 00x13 03x01 03x03 02x03 04x08 00x00 13x02 02x03 04x06 00x04 02x09 02x04
+04x08 00x00 03x06 03x01 00x02 04x03 00x0D 02x03 03x08  
 **out**: née, entrepôt, Zoë, façade, Señor, háček
 
 ## Switching layout
 
-**in**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04 02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10  
+**in**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04
+02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10  
 **out**: Did you know ~jn~ йцукен ~qy~ is not a word?
 
 **in**: Did you know ~jn~ йцукен ~qy~ is not a word?  
-**out**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04 02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10
+**out**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04
+02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10
 
 # Requirements
 
@@ -50,16 +57,19 @@ _Unless stated otherwise, QWERTY was used._
 To start the program, run one of the following commands:
 
 To start the program in GUI mode:
+
 ``` sh
 python main.py -g
 ```
 
 To start the program in console mode:
+
 ``` sh
 python main.py -c
 ```
 
 To get information on how to run the program:
+
 ``` sh
 python main.py -h
 ```
@@ -93,7 +103,8 @@ When either Encode or Decode is chosen you will be prompted if you want to encod
 
 ## Layouts
 
-Layouts are imported from layouts.json, which must contain the name and the data for lowercase and uppercase letters for each layout.
+Layouts are imported from layouts.json, which must contain the name and the data for lowercase and uppercase letters for
+each layout.
 
 ``` json
 "qy": {
@@ -117,9 +128,9 @@ Layouts are imported from layouts.json, which must contain the name and the data
 
 Characters are stored as 'text-nibbles' formatted as 00x00:
 
-|0  |0  |x  |0  |  0|
-|---|---|---|---|---|
-|Def. case|column num. (1-3)||Row num.1|Row num.2|
+| 0         | 0                 | x | 0         | 0         |
+|-----------|-------------------|---|-----------|-----------|
+| Def. case | column num. (1-3) |   | Row num.1 | Row num.2 |
 
 ## Special characters
 
@@ -146,9 +157,10 @@ Special characters can be found in special_mappings.json and are structured as s
 
 ## Adding layouts
 
-More can be added if needed, this can be done by hardcoding or by using add_layout().  
+More can be added if needed, this can be done by hardcoding or by using add_layout().
 
-As example, if the user wants to add QWERTY (they wouldn't be able to, as it already exists...), the user needs to do the following.
+As example, if the user wants to add QWERTY (they wouldn't be able to, as it already exists...), the user needs to do
+the following.
 
 ``` sh
 layout key:  qy
