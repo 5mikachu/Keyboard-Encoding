@@ -56,22 +56,10 @@ _Unless stated otherwise, QWERTY was used._
 
 To start the program, run one of the following commands:
 
-To start the program in GUI mode:
+To start the program:
 
 ``` sh
-python main.py -g
-```
-
-To start the program in console mode:
-
-``` sh
-python main.py -c
-```
-
-To get information on how to run the program:
-
-``` sh
-python main.py -h
+python app.py
 ```
 
 ## Main Menu

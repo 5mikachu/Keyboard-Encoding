@@ -47,3 +47,18 @@ document.getElementById("encodeForm").addEventListener("submit", (event) => {
 document.getElementById("decodeForm").addEventListener("submit", (event) => {
     submitForm(event, "decodeForm", "decodeResult", "/decode");
 });
+
+// Enable "View Layout" button when a layout is selected
+const layoutSelector = document.getElementById("layoutSelector");
+const viewLayoutButton = document.getElementById("viewLayoutButton");
+
+layoutSelector.addEventListener("change", () => {
+    viewLayoutButton.disabled = !layoutSelector.value;
+});
+
+viewLayoutButton.addEventListener("click", () => {
+    const layoutKey = layoutSelector.value;
+    if (layoutKey) {
+        window.location.href = `/view_layout/${layoutKey}`;
+    }
+});

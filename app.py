@@ -1,4 +1,5 @@
 import logging
+import re
 
 from flask import Flask, render_template, request, jsonify
 
@@ -67,6 +68,53 @@ def handle_choose_layout():
         layout_name: str = layouts.get_layout_name(layout_key)
         encoder_decoder.initialize_layout_dictionaries(layout_key)
         return jsonify({"message": f"Switched to layout '{layout_name}'"})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/view_layout/<layout_key>')
+def view_layout(layout_key):
+    try:
+        # Retrieve layouts
+        layout_lowercase, layout_uppercase = layouts.get_layout(layout_key)
+        layout_name: str = layouts.get_layout_name(layout_key)
+
+        # Helper function to decode \uXXXX codes
+        def decode_unicode(data):
+            return [[re.sub(r'\\u([0-9A-Fa-f]{4})', lambda match: chr(int(match.group(1), 16)), key) for key in row] for row in data]
+
+        # Decode both layouts
+        decoded_lowercase: list[list[str]] = decode_unicode(layout_lowercase)
+        decoded_uppercase: list[list[str]] = decode_unicode(layout_uppercase)
+
+        return render_template(
+            'layout_view.html',
+            layout_name=layout_name,
+            layout_lowercase=decoded_lowercase,
+            layout_uppercase=decoded_uppercase
+        )
+    except ValueError as e:
+        return f"Error: {e}", 404
+
+
+@app.route('/add_layout', methods=['POST'])
+def add_layout():
+    data = request.get_json()
+
+    # Extract layout details from the JSON data
+    layout_key: str = data.get('layout_key')
+    layout_name: str = data.get('layout_name')
+    layout_lowercase: list[list[str]] = data.get('layout_lowercase')
+    layout_uppercase: list[list[str]] = data.get('layout_uppercase')
+
+    # Validate inputs
+    if not (layout_key and layout_name and layout_lowercase and layout_uppercase):
+        return jsonify({"error": "All fields are required"}), 400
+
+    try:
+        # Call LayoutFunctions' add_layout method to add the new layout
+        layouts.add_layout(layout_key, layout_name, layout_lowercase, layout_uppercase)
+        return jsonify({"message": f"Layout '{layout_name}' added successfully"})
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 

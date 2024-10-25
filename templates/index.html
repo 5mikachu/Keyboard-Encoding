@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Encode/Decode Interface</title>
 </head>
 <body>
-    <header>
-        <div class="logo">Encode/Decode</div>
-    </header>
+    {% extends "template.html" %}
+    {% block content %}
 
     <div class="splash-container">
         <div class="splash-content">
             <h1>Welcome to the Encoder/Decoder</h1>
             <p>Select a layout and an action below:</p>
 
-            <!-- Layout Selector at the Top -->
+            <!-- Layout Selector with View Layout Button -->
             <div class="layout-selector">
                 <form id="layoutForm">
                     <label for="layout_name">Choose a Layout:</label>
@@ -26,10 +24,10 @@
                             <option value="{{ key }}">{{ name }}</option>
                         {% endfor %}
                     </select>
+                    <button type="button" id="viewLayoutButton" disabled>View Layout</button>
                 </form>
             </div>
 
-            <!-- Encoding and Decoding Forms Side by Side -->
             <div class="flex-container side-by-side">
                 <!-- Encode Form -->
                 <div class="flex-item">
@@ -54,6 +52,8 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/encode_decode.js') }}"></script>
+
+    {% endblock %}
 </body>
 </html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main_styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/keyboard.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='/static/images/icon.png') }}" type="image/x-icon">
+    <title>Flask NavBar Template</title>
+</head>
+<body>
+    <header>
+        <h1 class="logo">Encode/Decode</h1>
+        <nav>
+            <p><a href="{{ url_for('home') }}">Home</a></p>
+        </nav>
+    </header>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+</html>
