@@ -50,8 +50,8 @@ class EncodeDecode:
         :returns:
             encoded_text (str): The encoded text.
         """
-        encoded_text = []
-        normalized_text = unicodedata.normalize('NFD', text)
+        encoded_text: list[str] = []
+        normalized_text: str = unicodedata.normalize('NFD', text)
 
         for i, char in enumerate(normalized_text):
             # Switch layout if special character "~" is detected with a valid layout key

@@ -1,5 +1,4 @@
-
-/* Keyboard Layout Styling */
+/* Container styling for keyboard views */
 .keyboard-container {
     display: flex;
     flex-direction: column;
@@ -8,47 +7,94 @@
     background-color: var(--background);
     box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.3);
     border-radius: 1em;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .keyboard {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    max-width: 80%;
+    max-width: 100%;
+    margin-bottom: 1.5em;
 }
 
+/* Row styling for keyboard keys */
 .keyboard-row {
     display: flex;
     justify-content: center;
     gap: 0.25em;
 }
 
-/* Key Styling */
-.key {
+/* Styling for both regular and large keys */
+.key, .key-input {
     display: inline-flex;
     justify-content: center;
     align-items: center;
     background-color: var(--flex-item-bg);
-    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc;
     border-radius: 0.25em;
     width: 2.5em;
     height: 2.5em;
     font-size: 1.25em;
+    text-align: center;
     color: var(--text-color);
-    transition: background-color var(--hover-transition);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.2);
 }
 
-/* Larger Keys */
-.key.space {
+/* Hover effect for keys */
+.key:hover, .key-input:hover {
+    background-color: var(--accent-hover);
+    color: white;
+}
+
+/* Large key styling (SHIFT, ENTER, SPACE) */
+.key.space, .key-input.space {
     width: 12em;
 }
-.key.shift, .key.enter {
+.key.shift, .key.enter, .key-input.shift, .key-input.enter {
     width: 4em;
     cursor: pointer;
 }
 
-/* Hover effect for keys */
-.key:hover {
-    background-color: var(--accent-hover);
-    color: white;
+/* Styling for non-editable and editable keys */
+.key {
+    cursor: default;
+}
+.key-input {
+    cursor: text;
+}
+
+/* Form styling for layout key and name input fields */
+.add-layout-form {
+    margin-top: 2em;
+    padding: 1.5em;
+    background-color: var(--flex-item-bg);
+    border-radius: 1em;
+    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+}
+
+.add-layout-form label {
+    display: block;
+    margin: 0.5em 0 0.25em;
+    font-weight: bold;
+}
+
+.add-layout-form input, .add-layout-form textarea, .add-layout-form button {
+    width: 100%;
+    padding: 0.75em;
+    margin-bottom: 1em;
+    border-radius: 0.25em;
+    border: 1px solid #ddd;
+    font-size: 1em;
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+/* Message styling for form feedback */
+#addLayoutMessage {
+    font-size: 1em;
+    text-align: center;
+    margin-top: 1em;
 }
