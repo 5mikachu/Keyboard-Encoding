@@ -46,26 +46,24 @@ header {
 
 header .logo {
     font-size: 2em;
-    color: var(--text-color);
 }
 
-/* Main container and layout */
-.splash-container {
+nav {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--background);
+    gap: 1.5em;
 }
 
-.splash-content {
-    background: var(--splash-content-bg);
-    padding: 2em;
-    border-radius: 2em;
-    text-align: center;
-    max-width: 90%;
-    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.3);
+a {
+    text-decoration: none;
+    color: var(--accent);
+    transition: color var(--hover-transition);
+}
+a:hover {
+    color: var(--accent-hover);
+}
+
+.content {
+    margin: 0 2em;
 }
 
 /* Flexbox layout for action forms */
@@ -77,21 +75,18 @@ header .logo {
     margin: 1em;
 }
 
-/* Flexbox layout for encoding and decoding sections */
-.flex-container.side-by-side {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1em;
-    justify-content: center;
+.flex-item {
+    flex: 1 1 25em;
+    padding: 0 2em 1em 2em;
+    border-radius: 2em;
+    background: var(--flex-item-bg);
+    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.2);
+    margin: 0.5em;
     max-width: 100%;
 }
 
-.flex-item {
-    flex: 1 1 45%;
-    padding: 1.5em;
-    background: var(--flex-item-bg);
-    border-radius: 1em;
-    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.2);
+.flex-item h2{
+    text-align: center;
 }
 
 /* Form and button styling */
@@ -103,7 +98,6 @@ form {
 
 /* Styles for Textarea */
 textarea {
-    width: 100%;
     padding: 0.75em;
     border: 0.1em solid #ddd;
     border-radius: 0.25em;
@@ -142,11 +136,4 @@ button:hover {
 #encodeResult, #decodeResult, #layoutResult {
     margin-top: 1em;
     font-size: 1em;
-}
-
-/* Responsive Adjustment for Smaller Screens */
-@media (max-width: 70em) {
-    .flex-item {
-        flex: 1 1 100%; /* Stack items vertically on small screens */
-    }
 }

@@ -9,46 +9,42 @@
     {% extends "template.html" %}
     {% block content %}
 
-    <div class="splash-container">
-        <div class="splash-content">
-            <h1>Welcome to the Encoder/Decoder</h1>
-            <p>Select a layout and an action below:</p>
+    <h1>Welcome to the Encoder/Decoder</h1>
+    <p>Select a layout and an action below:</p>
 
-            <!-- Layout Selector with View Layout Button -->
-            <div class="layout-selector">
-                <form id="layoutForm">
-                    <label for="layout_name">Choose a Layout:</label>
-                    <select name="layout_name" id="layoutSelector" required>
-                        <option value="" disabled selected>Select a layout</option>
-                        {% for key, name in layouts %}
-                            <option value="{{ key }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" id="viewLayoutButton" disabled>View Layout</button>
-                </form>
-            </div>
+    <!-- Layout Selector with View Layout Button -->
+    <div class="layout-selector">
+        <form id="layoutForm">
+            <label for="layout_name">Choose a Layout:</label>
+            <select name="layout_name" id="layoutSelector" required>
+                <option value="" disabled selected>Select a layout</option>
+                {% for key, name in layouts %}
+                    <option value="{{ key }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" id="viewLayoutButton" disabled>View Layout</button>
+        </form>
+    </div>
 
-            <div class="flex-container side-by-side">
-                <!-- Encode Form -->
-                <div class="flex-item">
-                    <h2>Encode Text</h2>
-                    <form id="encodeForm">
-                        <textarea name="text_to_encode" placeholder="Enter text to encode" required rows="4"></textarea>
-                        <button type="submit">Encode</button>
-                    </form>
-                    <div id="encodeResult"></div>
-                </div>
+    <div class="flex-container">
+        <!-- Encode Form -->
+        <div class="flex-item">
+            <h2>Encode Text</h2>
+            <form id="encodeForm">
+                <textarea name="text_to_encode" placeholder="Enter text to encode" required rows="4"></textarea>
+                <button type="submit">Encode</button>
+            </form>
+            <div id="encodeResult"></div>
+        </div>
 
-                <!-- Decode Form -->
-                <div class="flex-item">
-                    <h2>Decode Text</h2>
-                    <form id="decodeForm">
-                        <textarea name="text_to_decode" placeholder="Enter text to decode" required rows="4"></textarea>
-                        <button type="submit">Decode</button>
-                    </form>
-                    <div id="decodeResult"></div>
-                </div>
-            </div>
+        <!-- Decode Form -->
+        <div class="flex-item">
+            <h2>Decode Text</h2>
+            <form id="decodeForm">
+                <textarea name="text_to_decode" placeholder="Enter text to decode" required rows="4"></textarea>
+                <button type="submit">Decode</button>
+            </form>
+            <div id="decodeResult"></div>
         </div>
     </div>
 

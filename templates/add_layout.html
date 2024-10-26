@@ -10,38 +10,40 @@
     {% extends "template.html" %}
     {% block content %}
 
-    <div class="keyboard-container">
-        <h2>Lowercase Layout</h2>
-        <div class="keyboard" id="keyboard-lowercase">
-            {% for row in range(4) %}
-                <div class="keyboard-row">
-                    {% for col in range(12) %}
-                        <input type="text" maxlength="1" class="key-input" data-row="{{ row }}" data-col="{{ col }}" placeholder=" ">
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
+    <div class="flex-container">
+        <div class="flex-item">
+            <h2>Lowercase Layout</h2>
+            <div class="keyboard" id="keyboard-lowercase">
+                {% for row in range(4) %}
+                    <div class="keyboard-row">
+                        {% for col in range(12) %}
+                            <input type="text" maxlength="1" class="key-input" data-row="{{ row }}" data-col="{{ col }}" placeholder=" ">
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
 
-        <h2>Uppercase Layout</h2>
-        <div class="keyboard" id="keyboard-uppercase">
-            {% for row in range(4) %}
-                <div class="keyboard-row">
-                    {% for col in range(12) %}
-                        <input type="text" maxlength="1" class="key-input" data-row="{{ row }}" data-col="{{ col }}" placeholder=" ">
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
+            <h2>Uppercase Layout</h2>
+            <div class="keyboard" id="keyboard-uppercase">
+                {% for row in range(4) %}
+                    <div class="keyboard-row">
+                        {% for col in range(12) %}
+                            <input type="text" maxlength="1" class="key-input" data-row="{{ row }}" data-col="{{ col }}" placeholder=" ">
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
 
-        <div class="add-layout-form">
-            <label for="layout_key">Layout Key (unique identifier):</label>
-            <input type="text" id="layout_key" required>
+            <div class="add-layout-form">
+                <label for="layout_key">Layout Key (unique identifier):</label>
+                <input type="text" id="layout_key" required>
 
-            <label for="layout_name">Layout Name:</label>
-            <input type="text" id="layout_name" required>
+                <label for="layout_name">Layout Name:</label>
+                <input type="text" id="layout_name" required>
 
-            <button type="button" onclick="submitNewLayout()">Add Layout</button>
-            <div id="addLayoutMessage"></div>
+                <button type="button" onclick="submitNewLayout()">Add Layout</button>
+                <div id="addLayoutMessage"></div>
+            </div>
         </div>
     </div>
 

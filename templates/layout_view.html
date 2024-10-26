@@ -10,10 +10,12 @@
     {% extends "template.html" %}
     {% block content %}
 
-    <div class="keyboard-container">
-        <h2>Keyboard Layout - {{ layout_name }}</h2>
-        <div class="keyboard" id="keyboard">
-            <!-- Rendered dynamically by JavaScript based on layout data -->
+    <div class="flex-container">
+        <div class="flex-item">
+            <h2>Keyboard Layout - {{ layout_name }}</h2>
+            <div class="keyboard" id="keyboard">
+                <!-- Rendered dynamically by JavaScript based on layout data -->
+            </div>
         </div>
     </div>
 

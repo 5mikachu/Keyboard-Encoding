@@ -11,11 +11,8 @@ layouts and can handle both individual text input and text files.
 
 * **Multiple Keyboard Layouts**: Supports AZERTY, Colemak, Dvorak, HCESAR, QWERTY, QWERTZ, Workman and more.
 * **Encoding and Decoding**: Converts text to encoded format and vice versa.
-* **File Handling**: Can 'encode' and 'decode' text from files.
-* **Interactive Menu**: Both a graphical and console based interface.
 * **Layout Switching**: It is possible to switch layout mid de/encode.
-* **Adding custom Layouts**: It is posable to ad your own layout.
-* **Customization**: If by customization you mean changing values in a config...
+* **Adding custom Layouts**: It is possible to add your own layout.
 
 # Examples
 
@@ -48,7 +45,6 @@ _Unless stated otherwise, QWERTY was used._
 * Python 3.x
 * layouts.json file containing keyboard layout definitions
 * special_layouts.json file containing special mappings
-* config.ini with correctly set parameters
 
 # Usage
 
