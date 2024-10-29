@@ -17,12 +17,18 @@ This Python program allows you to 'encode' and 'decode' text using various keybo
 
 Unless stated otherwise, QWERTY was used.
 
+## Encode and Decode
+
+**in**: The quick brown fox jumps over the lazy dog.!?  
+**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
+
+**in**: 04x06 02x03 00x02 02x03 04x08 00x00 02x03 04x06 02x05 02x04 02x03 02x10 02x09 00x03 02x05 04x08 00x00 14x01 02x09 02x03 00x09 04x08 00x00 03x04 03x01 04x03 00x13 03x01 03x03 02x03 04x08 00x00 13x02 02x03 04x06 00x04 02x09 02x04 04x08 00x00 03x06 03x01 00x02 04x03 00x0D 02x03 03x08  
+**out**: née, entrepôt, Zoë, façade, Señor, háček
+
 ## Switching layout
 
-in: The quick brown fox jumps over the lazy dog.!?
-out: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
-
-... other examples omitted for brevity ...
+**in**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 jn 00x00 02x01 02x02 02x03 02x04 02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10  
+**out**: Did you know ~jn~ йцукен ~qy~ is not a word?
 
 # Requirements
 

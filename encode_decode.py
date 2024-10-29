@@ -54,7 +54,6 @@ class EncodeDecode:
         normalized_text: str = unicodedata.normalize('NFD', text)
 
         for i, char in enumerate(normalized_text):
-            # Switch layout if special character "~" is detected with a valid layout key
             if char == '~':
                 end_marker = normalized_text.find('~', i + 1)
                 key = normalized_text[i + 1:end_marker]
@@ -62,7 +61,6 @@ class EncodeDecode:
                     self.initialize_layout_dictionaries(key)
                     encoded_text.append(key)
             elif char in self.encoding_dict or self.encode_special_mappings:
-                # Append encoded character or special mapping, falling back to "�" if missing
                 encoded_char = self.encoding_dict.get(char) or self.encode_special_mappings.get(char, '�')
                 encoded_text.append(encoded_char)
             else:
@@ -85,12 +83,10 @@ class EncodeDecode:
         codes: list[str] = encoded_text.split()
 
         for code in codes:
-            # Switch layout if the code is a valid layout key
             if code in dict(self.layout_functions.list_layouts()):
                 self.initialize_layout_dictionaries(code)
                 decoded_text.append(f"~{code}~")
             elif code in self.decoding_dict or self.decode_special_mappings:
-                # Append decoded character or special mapping, falling back to "�" if missing
                 decoded_char = self.decoding_dict.get(code) or self.decode_special_mappings.get(code, '�')
                 decoded_text.append(decoded_char)
             else:
