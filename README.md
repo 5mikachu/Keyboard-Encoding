@@ -1,11 +1,10 @@
 # Keyboard Encoding Thingy
 
-Are your text files to easy to read? Is plain-text to optimized for you?
+Are your text files too easy to read? Is plain-text too optimized for you?
 
-THEN THIS PROGRAM IS MADE FOR YOU!!
+**THEN THIS PROGRAM IS MADE FOR YOU!!**
 
-This Python program allows you to 'encode' and 'decode' text using various keyboard layouts. It supports multiple
-layouts and can handle both individual text input and text files.
+This Python program allows you to 'encode' and 'decode' text using various keyboard layouts. It supports multiple layouts and can handle both individual text input and text files.
 
 # Features
 
@@ -16,53 +15,47 @@ layouts and can handle both individual text input and text files.
 
 # Examples
 
-_Unless stated otherwise, QWERTY was used._
-
-## Encode and Decode
-
-**in**: The quick brown fox jumps over the lazy dog.!?  
-**out**: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09
-04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01
-02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
-
-**in**: 04x06 02x03 00x02 02x03 04x08 00x00 02x03 04x06 02x05 02x04 02x03 02x10 02x09 00x03 02x05 04x08 00x00 14x01
-02x09 02x03 00x09 04x08 00x00 03x04 03x01 04x03 00x13 03x01 03x03 02x03 04x08 00x00 13x02 02x03 04x06 00x04 02x09 02x04
-04x08 00x00 03x06 03x01 00x02 04x03 00x0D 02x03 03x08  
-**out**: née, entrepôt, Zoë, façade, Señor, háček
+Unless stated otherwise, QWERTY was used.
 
 ## Switching layout
 
-**in**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04
-02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10  
-**out**: Did you know ~jn~ йцукен ~qy~ is not a word?
+in: The quick brown fox jumps over the lazy dog.!?
+out: 12x05 03x06 02x03 00x00 02x01 02x07 02x08 04x03 03x08 00x00 04x05 02x04 02x09 02x02 04x06 00x00 03x04 02x09 04x02 00x00 03x07 02x07 04x07 02x10 03x02 00x00 02x09 04x04 02x03 02x04 00x00 02x05 03x06 02x03 00x00 03x09 03x01 04x01 02x06 00x00 03x03 02x09 03x05 04x09 11x02 14x10
 
-**in**: Did you know ~jn~ йцукен ~qy~ is not a word?  
-**out**: 13x03 02x08 03x03 00x00 02x06 02x09 02x07 00x00 03x08 04x06 02x09 02x02 00x00 ru 00x00 02x01 02x02 02x03 02x04
-02x05 02x06 00x00 qy 00x00 02x08 03x02 00x00 04x06 02x09 02x05 00x00 03x01 00x00 02x02 02x09 02x04 03x03 14x10
+... other examples omitted for brevity ...
 
 # Requirements
 
 * Python 3.x
 * layouts.json file containing keyboard layout definitions
 * special_layouts.json file containing special mappings
+* Flask
+* Usage
 
 # Usage
 
 ## Starting the Program
 
-To start the program, run one of the following commands:
+To install requirements:
+``` sh
+pip install -r requirements.txt 
+```
 
 To start the program:
-
 ``` sh
 python app.py
 ```
 
-## Main Menu
+## Web Interface
 
-_At the moment this is the only menu, but Main Menu sound better._
+The Flask-based web interface is available at http://127.0.0.1:5000/. Accessing this will allow you to interact with the encoding/decoding features through a graphical interface, including:
 
-When running the program, you will be prompted to select a keyboard layout. Currently available options are:
+* Selecting a keyboard layout
+* Viewing selected layout
+* Encoding or decoding text
+* Adding custom layouts
+
+When running the program, you will be asked to select a keyboard layout. Available options include:
 
 * ay: AZERTY
 * ck: Colemak
@@ -71,17 +64,6 @@ When running the program, you will be prompted to select a keyboard layout. Curr
 * qy: QWERTY
 * qz: QWERTZ
 * wn: Workman
-
-After selecting a layout, the main menu will provide the following options:
-
-1. encode
-2. decode
-3. switch layout
-4. add layout
-5. switch to GUI
-6. Exit (My favorite)
-
-When either Encode or Decode is chosen you will be prompted if you want to encode/decode text or text from a file.
 
 # Documentation
 
@@ -92,19 +74,20 @@ each layout.
 
 ``` json
 "qy": {
-    "name": "QWERTY",
-    "lowercase": [
-        ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
-        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
-        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", " "],
-        ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/", " ", " "]
+  "name": "QWERTY",
+  "lowercase": [
+    ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+    ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
+    ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'"],
+    ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/"]
+  ],
+  "uppercase": [
+    ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"],
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\""
     ],
-    "uppercase": [
-        ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"],
-        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|"],
-        ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", " "],
-        ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", " ", " "]
-    ]
+    ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?"]
+  ]
 },
 ```
 
@@ -122,20 +105,20 @@ Special characters can be found in special_mappings.json and are structured as s
 
 ``` json
 {
-    " ": "00x00",
-    "\n": "10x00",
-    "\t": "10x01",
-    "\r": "10x02",
-    "\b": "10x03",
-    "\f": "10x04",
-    "\u0300": "00x01",
-    "\u0301": "00x02",
-    "\u0302": "00x03",
-    "\u0303": "00x04",
-    "\u0304": "00x05",
-    "\u0305": "00x06",
-    
-    // And so on...
+  " ": "00x00",
+  "\n": "10x00",
+  "\t": "10x01",
+  "\r": "10x02",
+  "\b": "10x03",
+  "\f": "10x04",
+  "\u0300": "00x01",
+  "\u0301": "00x02",
+  "\u0302": "00x03",
+  "\u0303": "00x04",
+  "\u0304": "00x05",
+  "\u0305": "00x06",
+
+  // And so on...
 }
 ```
 
@@ -155,8 +138,6 @@ Enter row 3 for lowercase: ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'
 Enter row 4 for lowercase: ["z", "x", "c", "v", "b", "n", "m", ",", ".", "/", " ", " "]
 Enter row 1 for uppercase: ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"]
 Enter row 2 for uppercase: ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|"]
-Enter row 3 for uppercase: ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", " "]
-Enter row 4 for uppercase: ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", " ", " "]
+Enter row 3 for uppercase: ["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\""]
+Enter row 4 for uppercase: ["Z", "X", "C", "V", "B", "N", "M", "<", ">", "?"]
 ```
-
-To get to the add_layout() function, simply type 'add layout' when prompted for a layout or choose 4 in the main menu.
