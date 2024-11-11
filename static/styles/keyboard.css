@@ -62,8 +62,7 @@
     background-color: var(--flex-item-bg);
     border-radius: 1em;
     box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: 600px;
+    max-width: 100%;
 }
 
 .add-layout-form label {
